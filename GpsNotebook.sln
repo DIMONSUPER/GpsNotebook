@@ -15,6 +15,12 @@ Global
 		Release|iPhoneSimulator = Release|iPhoneSimulator
 		Debug|iPhone = Debug|iPhone
 		Release|iPhone = Release|iPhone
+		DEV|Any CPU = DEV|Any CPU
+		DEV|iPhone = DEV|iPhone
+		DEV|iPhoneSimulator = DEV|iPhoneSimulator
+		STAGE|Any CPU = STAGE|Any CPU
+		STAGE|iPhone = STAGE|iPhone
+		STAGE|iPhoneSimulator = STAGE|iPhoneSimulator
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{7D452650-2681-4BE3-B75F-E5504A855CF4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU

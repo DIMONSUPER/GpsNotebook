@@ -1,10 +1,10 @@
-﻿
-using Android.App;
+﻿using Android.App;
 using Android.Content.PM;
 using Android.Runtime;
 using Android.OS;
 using Prism;
 using Prism.Ioc;
+using Acr.UserDialogs;
 
 namespace GpsNotebook.Droid
 {
@@ -16,9 +16,10 @@ namespace GpsNotebook.Droid
             TabLayoutResource = Resource.Layout.Tabbar;
             ToolbarResource = Resource.Layout.Toolbar;
 
+            UserDialogs.Init(this);
+
             base.OnCreate(savedInstanceState);
 
-            Xamarin.Essentials.Platform.Init(this, savedInstanceState);
             global::Xamarin.Forms.Forms.Init(this, savedInstanceState);
             LoadApplication(new App(new AndroidInitializer()));
         }

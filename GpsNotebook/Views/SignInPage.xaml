@@ -1,0 +1,49 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="GpsNotebook.Views.SignInPage"
+             xmlns:resource="clr-namespace:GpsNotebook.Resources"
+             Title="{x:Static resource:AppResources.SignIn}">
+    <ContentPage.Content>
+        <StackLayout VerticalOptions="FillAndExpand"
+                     HorizontalOptions="FillAndExpand"
+                     Padding="30,0"
+                     Spacing="0">
+            <StackLayout VerticalOptions="CenterAndExpand">
+                <Entry Placeholder="{x:Static resource:AppResources.Email}"
+                       FontSize="30"
+                       Text="{Binding UserEmail}"/>
+
+                <Entry Placeholder="{x:Static resource:AppResources.Password}"
+                       FontSize="30"
+                       IsPassword="True"
+                       Text="{Binding UserPassword}"/>
+
+            </StackLayout>
+            <Button Text="{x:Static resource:AppResources.SignIn}"
+                    TextColor="Black"
+                    FontAttributes="Bold"
+                    FontSize="21"
+                    VerticalOptions="End"
+                    Margin="0,0,0,30"
+                    BackgroundColor="#ff901b"
+                    BorderColor="Black"
+                    BorderWidth="1"
+                    HeightRequest="75"
+                    Command="{Binding SignInClickCommand}"/>
+
+            <Button Text="{x:Static resource:AppResources.SignUp}"
+                    TextColor="Black"
+                    FontAttributes="Bold"
+                    FontSize="21"
+                    VerticalOptions="End"
+                    Margin="0,0,0,60"
+                    BackgroundColor="#ff901b"
+                    BorderColor="Black"
+                    BorderWidth="1"
+                    HeightRequest="75"
+                    Command="{Binding SignUpClickCommand}"/>
+
+        </StackLayout>
+    </ContentPage.Content>
+</ContentPage>

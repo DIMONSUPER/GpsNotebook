@@ -1,4 +1,5 @@
-﻿using GpsNotebook.Models;
+﻿using Acr.UserDialogs;
+using GpsNotebook.Models;
 using GpsNotebook.Resources;
 using GpsNotebook.Services;
 using Prism.Navigation;
@@ -14,15 +15,15 @@ namespace GpsNotebook.ViewModels
         public ICommand SignUpClickCommand => new Command(SignUpClick);
 
         private IRepositoryService RepositoryService { get; }
-        private IPageDialogService PageDialogService { get; }
+        private IUserDialogs UserDialogs { get; }
         public SignUpPageViewModel(
             INavigationService navigationService,
             IRepositoryService repositoryService,
-            IPageDialogService pageDialogService)
+            IUserDialogs userDialogs)
             : base(navigationService)
         {
             RepositoryService = repositoryService;
-            PageDialogService = pageDialogService;
+            UserDialogs = userDialogs;
         }
 
         private string userEmail;
@@ -62,14 +63,14 @@ namespace GpsNotebook.ViewModels
                 if (string.IsNullOrEmpty(userName)
                     || userName.Length < 6)
                 {
-                    await PageDialogService.DisplayAlertAsync(
+                    await UserDialogs.AlertAsync(
                         AppResources.NameInvalid,
                         AppResources.NameInvalid,
                         AppResources.OK);
                 }
                 else if (UserPassword != ConfirmUserPassword)
                 {
-                    await PageDialogService.DisplayAlertAsync(
+                    await UserDialogs.AlertAsync(
                         AppResources.PasswordsMatch,
                         AppResources.PasswordsMatch,
                         AppResources.OK);
@@ -79,9 +80,9 @@ namespace GpsNotebook.ViewModels
                     int result = await RepositoryService.InsertAsync(new UserModel { Email = UserEmail, Password = UserPassword });
                     if (result != -1)
                     {
-                        await PageDialogService.DisplayAlertAsync(
-                            AppResources.RegistrationSuccessfullTitle,
+                        await UserDialogs.AlertAsync(
                             AppResources.RegistrationSuccessfull,
+                            AppResources.RegistrationSuccessfullTitle,
                             AppResources.OK);
 
                         var parameters = new NavigationParameters
@@ -93,9 +94,9 @@ namespace GpsNotebook.ViewModels
                     }
                     else
                     {
-                        await PageDialogService.DisplayAlertAsync(
-                            AppResources.RegistrationFailTitle,
+                        await UserDialogs.AlertAsync(
                             AppResources.RegistrationFail,
+                            AppResources.RegistrationFailTitle,
                             AppResources.OK);
                     }
                 }
@@ -103,9 +104,9 @@ namespace GpsNotebook.ViewModels
 
             if (!string.IsNullOrEmpty(message))
             {
-                await PageDialogService.DisplayAlertAsync(
-                    AppResources.RegistrationFailTitle,
+                await UserDialogs.AlertAsync(
                     message,
+                    AppResources.RegistrationFailTitle,
                     AppResources.OK);
             }
         }
@@ -116,7 +117,7 @@ namespace GpsNotebook.ViewModels
 
             var valideEmail = new Regex(@"^([\w\.\-]+)@([\w\-]+)((\.(\w){2,})+)$");
             if (string.IsNullOrEmpty(email)
-                ||!valideEmail.IsMatch(email))
+                || !valideEmail.IsMatch(email))
             {
                 message += $"\n{AppResources.EmailInvalid}";
 
@@ -132,7 +133,7 @@ namespace GpsNotebook.ViewModels
 
             var hasMinChars = new Regex(@"^.{8,}");
             if (string.IsNullOrEmpty(pass)
-                ||!hasMinChars.IsMatch(pass))
+                || !hasMinChars.IsMatch(pass))
             {
                 message += $"\n{AppResources.PasswordMinChar}";
 

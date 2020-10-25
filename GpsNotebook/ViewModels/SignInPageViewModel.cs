@@ -1,4 +1,5 @@
 ﻿using System.Windows.Input;
+using Acr.UserDialogs;
 using GpsNotebook.Helpers;
 using GpsNotebook.Models;
 using GpsNotebook.Resources;
@@ -16,16 +17,15 @@ namespace GpsNotebook.ViewModels
         public ICommand SignUpClickCommand => new Command(SignUpClick);
 
         private IRepositoryService RepositoryService { get; }
-        private IPageDialogService PageDialogService { get; }
-
+        private IUserDialogs UserDialogs { get; }
         public SignInPageViewModel(
             INavigationService navigationService,
             IRepositoryService repositoryService,
-            IPageDialogService pageDialogService)
+            IUserDialogs userDialogs)
             :base(navigationService)
         {
             RepositoryService = repositoryService;
-            PageDialogService = pageDialogService;
+            UserDialogs = userDialogs;
             RepositoryService.InitTable<UserModel>();
         }
         public override void OnNavigatedTo(INavigationParameters parameters)
@@ -74,7 +74,7 @@ namespace GpsNotebook.ViewModels
             }
             else
             {
-                await PageDialogService.DisplayAlertAsync(AppResources.InvalidLogin, AppResources.InvalidLogin, AppResources.OK);
+                await UserDialogs.AlertAsync(AppResources.InvalidLogin, AppResources.InvalidLogin, AppResources.OK);
                 Settings.RememberedEmail = string.Empty;
                 Settings.RememberedUserId = 0;
                 UserPassword = string.Empty;

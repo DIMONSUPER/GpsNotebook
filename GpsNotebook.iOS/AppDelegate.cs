@@ -20,6 +20,7 @@ namespace GpsNotebook.iOS
         //
         public override bool FinishedLaunching(UIApplication app, NSDictionary options)
         {
+            Xamarin.FormsGoogleMaps.Init("AIzaSyDw-AUMU2iI5OyfEEkaXvRGhfFLnTK6TGg");
             global::Xamarin.Forms.Forms.Init();
             LoadApplication(new App(new iOSInitializer()));
 

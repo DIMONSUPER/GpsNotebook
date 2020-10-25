@@ -1,0 +1,50 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:prism="http://prismlibrary.com" xmlns:map="clr-namespace:Xamarin.Forms.GoogleMaps;assembly=Xamarin.Forms.GoogleMaps" xmlns:bindings="clr-namespace:GpsNotebook.Behaviors"
+             prism:ViewModelLocator.AutowireViewModel="True"
+             x:Class="GpsNotebook.Views.AddPinPage"
+             xmlns:resource="clr-namespace:GpsNotebook.Resources"
+             Title="{x:Static resource:AppResources.AddPin}">
+
+    <ContentPage.ToolbarItems>
+        <ToolbarItem Command="{Binding SaveClickedCommand}"
+                     Text = "{x:Static resource:AppResources.Save}"
+                     IconImageSource="ic_save.png"
+                     Order = "Primary"/>
+    </ContentPage.ToolbarItems>
+
+    <ContentPage.Content>
+        <StackLayout Padding="30,30">
+            <Entry Placeholder="{x:Static resource:AppResources.Label}"
+                   Text="{Binding Pin.Label}"/>
+
+            <Entry Placeholder="{x:Static resource:AppResources.Position}"
+                   Text="{Binding Pin.Position.Latitude}"
+                   IsEnabled="False"/>
+            <Entry Placeholder="{x:Static resource:AppResources.Position}"
+                   Text="{Binding Pin.Position.Longitude}"
+                   IsEnabled="False"/>
+
+            <Editor Placeholder="{x:Static resource:AppResources.Description}"
+                    Text="{Binding Address}"
+                    MaxLength="120"/>
+            <Grid VerticalOptions="FillAndExpand">
+                <map:Map MapType="Street">
+                    <map:Map.Behaviors>
+                        <bindings:MapClickedToCommandBehavior Command="{Binding MapClickedCommand}"/>
+                        <bindings:BindingPinsBehavior Value="{Binding Pins}"/>
+                        <bindings:SelectedPinChangedToCommandBehavior Command="{Binding SelectedPinChangedCommand}"/>
+                    </map:Map.Behaviors>
+                    <map:Map.ItemTemplate>
+                        <DataTemplate>
+                            <map:Pin Position="{Binding Position}"
+                                 Label="{Binding PlaceName}">
+                            </map:Pin>
+                        </DataTemplate>
+                    </map:Map.ItemTemplate>
+                </map:Map>
+            </Grid>
+        </StackLayout>
+    </ContentPage.Content>
+</ContentPage>

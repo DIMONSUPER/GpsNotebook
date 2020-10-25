@@ -4,7 +4,13 @@
             xmlns:views="clr-namespace:GpsNotebook.Views"
             x:Class="GpsNotebook.Views.MainTabbedPage"
             xmlns:resource="clr-namespace:GpsNotebook.Resources"
+            xmlns:behaviors="clr-namespace:GpsNotebook.Behaviors"
             Title="{x:Static resource:AppResources.MainPage}">
+
+    <TabbedPage.Behaviors>
+        <behaviors:TabbedPageNavigationBehavior/>
+    </TabbedPage.Behaviors>
+    
     <TabbedPage.Children>
         <views:MainMapPage Title="{x:Static resource:AppResources.Map}"
                            IconImageSource="map.png"/>

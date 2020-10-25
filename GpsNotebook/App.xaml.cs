@@ -46,6 +46,8 @@ namespace GpsNotebook
             containerRegistry.RegisterForNavigation<SignUpPage, SignUpPageViewModel>();
             containerRegistry.RegisterForNavigation<MainMapPage, MainMapPageViewModel>();
             containerRegistry.RegisterForNavigation<AllPinsPage, AllPinsPageViewModel>();
+            containerRegistry.RegisterForNavigation<PinInfoPage, PinInfoPageViewModel>();
+            containerRegistry.RegisterForNavigation<AddPinPage, AddPinPageViewModel>();
         }
     }
 }

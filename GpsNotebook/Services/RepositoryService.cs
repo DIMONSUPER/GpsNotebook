@@ -23,7 +23,7 @@ namespace GpsNotebook.Services
             return await database.DeleteAsync(entity);
         }
 
-        public async Task<IEnumerable<T>> GetAllAsync<T>(Expression<Func<T, bool>> predicate = null) where T : IEntityBase, new()
+        public async Task<List<T>> GetAllAsync<T>(Expression<Func<T, bool>> predicate = null) where T : IEntityBase, new()
         {
             var table = database.Table<T>();
             List<T> result;

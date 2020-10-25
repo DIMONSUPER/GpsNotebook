@@ -4,7 +4,70 @@
              x:Class="GpsNotebook.Views.AllPinsPage"
              xmlns:resource="clr-namespace:GpsNotebook.Resources"
              Title="{x:Static resource:AppResources.AllPins}">
+
+    <ContentPage.ToolbarItems>
+        <ToolbarItem Text="{x:Static resource:AppResources.LogOut}"
+                     IconImageSource="ic_exit_to_app.png"
+                     Command="{Binding LogOutClickedCommand}"/>
+    </ContentPage.ToolbarItems>
     <ContentPage.Content>
-        <Label Text="Hi from pins"/>
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            <StackLayout  Grid.Row="0">
+                <ListView ItemsSource="{Binding PlacesList}"
+                          HasUnevenRows="True"
+                          SelectedItem="{Binding SelectedPin, Mode=TwoWay}">
+                    <ListView.ItemTemplate>
+                        <DataTemplate>
+                            <ViewCell>
+                                <ViewCell.View>
+                                    <Grid Padding="10">
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="Auto"/>
+                                        </Grid.RowDefinitions>
+
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="Auto" />
+                                        </Grid.ColumnDefinitions>
+                                        <Label Grid.Column="0"
+                                               Text="{Binding Label}"
+                                               FontAttributes="Bold"/>
+
+                                        <Label Grid.Row="1"
+                                               Text="{Binding Latitude}"
+                                               VerticalOptions="Center"/>
+
+                                        <Label Grid.Row="2"
+                                               Text="{Binding Longitude}"
+                                               VerticalOptions="Center"/>
+
+                                        <Label Grid.Row="3"
+                                               Text="{Binding Address}"
+                                               FontAttributes="Italic"
+                                               VerticalOptions="End"/>
+                                    </Grid>
+                                </ViewCell.View>
+                            </ViewCell>
+                        </DataTemplate>
+                    </ListView.ItemTemplate>
+                </ListView>
+            </StackLayout>
+            <ImageButton Source="ic_add.png" 
+                         BackgroundColor="RoyalBlue"
+                         CornerRadius="100"
+                         BorderWidth="10"
+                         Scale="0.8"
+                         Padding="30"
+                         BorderColor="Black"
+                         HorizontalOptions="End"
+                         VerticalOptions="End"
+                         Margin="0,0,20,40"
+                         Command="{Binding AddButtonClickedCommand}"/>
+        </Grid>
     </ContentPage.Content>
 </ContentPage>

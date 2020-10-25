@@ -3,8 +3,30 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="GpsNotebook.Views.MainMapPage"
              xmlns:resource="clr-namespace:GpsNotebook.Resources"
+             xmlns:bindings="clr-namespace:GpsNotebook.Behaviors"
+             xmlns:map="clr-namespace:Xamarin.Forms.GoogleMaps;assembly=Xamarin.Forms.GoogleMaps"
              Title="{x:Static resource:AppResources.Map}">
+    <ContentPage.ToolbarItems>
+        <ToolbarItem Text="{x:Static resource:AppResources.LogOut}"
+                     IconImageSource="ic_exit_to_app.png"
+                     Command="{Binding LogOutClickedCommand}"/>
+    </ContentPage.ToolbarItems>
     <ContentPage.Content>
-        <Label Text="Hello"/>
+        <Grid>
+            <map:Map ItemsSource="{Binding PlacesList}"
+                     MapType="Street"
+                     HasZoomEnabled="True">
+                <map:Map.Behaviors>
+                    <bindings:PinClickedToCommandBehavior Command="{Binding PinClickedCommand}"/>
+                </map:Map.Behaviors>
+                <map:Map.ItemTemplate>
+                    <DataTemplate>
+                        <map:Pin Label="{Binding Label}"
+                                 Position="{Binding Position}">
+                        </map:Pin>
+                    </DataTemplate>
+                </map:Map.ItemTemplate>
+            </map:Map>
+        </Grid>
     </ContentPage.Content>
 </ContentPage>

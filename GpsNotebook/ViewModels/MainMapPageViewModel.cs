@@ -1,9 +1,12 @@
-﻿using GpsNotebook.Helpers;
+﻿using Acr.UserDialogs;
+using Android.OS;
+using GpsNotebook.Helpers;
 using GpsNotebook.Models;
 using GpsNotebook.Services;
 using GpsNotebook.Views;
 using Prism.Navigation;
 using Prism.Services;
+using System;
 using System.Collections.ObjectModel;
 using System.Windows.Input;
 using Xamarin.Essentials;
@@ -16,6 +19,7 @@ namespace GpsNotebook.ViewModels
     {
         public ICommand PinClickedCommand => new Command<PinClickedEventArgs>(PinClick);
         public ICommand LogOutClickedCommand => new Command(LogOutClick);
+        public ICommand CurrentLocationClickedCommand => new Command(CurrentLocationClick);
 
         private IRepositoryService RepositoryService { get; }
 
@@ -27,7 +31,7 @@ namespace GpsNotebook.ViewModels
             RepositoryService = repositoryService;
             RepositoryService.InitTable<PinModel>();
             PlacesList = new ObservableCollection<PinModel>();
-            LoadPins();
+            CameraPosition = CameraUpdateFactory.NewCameraPosition(new CameraPosition(new Position(30, 30), 5d, 30d, 60d));
         }
         public override void OnNavigatedTo(INavigationParameters parameters)
         {
@@ -41,7 +45,14 @@ namespace GpsNotebook.ViewModels
             set { SetProperty(ref placesList, value); }
         }
 
-        private void PinClick(PinClickedEventArgs args)
+        private CameraUpdate cameraPosition;
+        public CameraUpdate CameraPosition
+        {
+            get { return cameraPosition; }
+            set { SetProperty(ref cameraPosition, value); }
+        }
+
+        private async void PinClick(PinClickedEventArgs args)
         {
             var parameters = new NavigationParameters
             {
@@ -49,7 +60,33 @@ namespace GpsNotebook.ViewModels
                 { nameof(args.Pin.Address),args.Pin.Address },
                 { nameof(args.Pin.Position),args.Pin.Position }
             };
-            NavigationService.NavigateAsync(nameof(PinInfoPage), parameters);
+            
+            //await NavigationService.NavigateAsync(nameof(PinInfoPage), parameters);
+        }
+
+        private async void CurrentLocationClick()
+        {
+            try
+            {
+                var location = await Geolocation.GetLastKnownLocationAsync();
+                if (location == null)
+                {
+                    location = await Geolocation.GetLocationAsync(new GeolocationRequest
+                    {
+                        DesiredAccuracy = GeolocationAccuracy.Low,
+                        Timeout = TimeSpan.FromSeconds(30)
+                    });
+                }
+
+                if (location != null)
+                {
+                    CameraPosition = CameraUpdateFactory.NewCameraPosition(new CameraPosition(
+                        new Position(location.Latitude, location.Longitude), 10d, 30d, 60d));
+                }
+            }
+            catch
+            {
+            }
         }
 
         private async void LogOutClick()

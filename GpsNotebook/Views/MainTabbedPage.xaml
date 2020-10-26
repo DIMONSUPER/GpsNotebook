@@ -10,7 +10,7 @@
     <TabbedPage.Behaviors>
         <behaviors:TabbedPageNavigationBehavior/>
     </TabbedPage.Behaviors>
-    
+
     <TabbedPage.Children>
         <views:MainMapPage Title="{x:Static resource:AppResources.Map}"
                            IconImageSource="map.png"/>

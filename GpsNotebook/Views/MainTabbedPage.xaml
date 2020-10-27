@@ -8,13 +8,11 @@
             Title="{x:Static resource:AppResources.MainPage}">
 
     <TabbedPage.Behaviors>
-        <behaviors:TabbedPageNavigationBehavior/>
+        <behaviors:TabbedPageNavigationBehavior />
     </TabbedPage.Behaviors>
 
     <TabbedPage.Children>
-        <views:MainMapPage Title="{x:Static resource:AppResources.Map}"
-                           IconImageSource="map.png"/>
-        <views:AllPinsPage Title="{x:Static resource:AppResources.AllPins}"
-                           IconImageSource="list_pins.png"/>
+        <views:MainMapPage Title="{x:Static resource:AppResources.Map}"/>
+        <views:AllPinsPage Title="{x:Static resource:AppResources.AllPins}"/>
     </TabbedPage.Children>
 </TabbedPage>

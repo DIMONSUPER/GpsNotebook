@@ -4,7 +4,7 @@
              x:Class="GpsNotebook.Views.MainMapPage"
              xmlns:resource="clr-namespace:GpsNotebook.Resources"
              xmlns:bindings="clr-namespace:GpsNotebook.Behaviors"
-             xmlns:map="clr-namespace:Xamarin.Forms.GoogleMaps;assembly=Xamarin.Forms.GoogleMaps"
+             xmlns:map="clr-namespace:Xamarin.Forms.GoogleMaps;assembly=Xamarin.Forms.GoogleMaps" xmlns:controls="clr-namespace:GpsNotebook.Controls"
              Title="{x:Static resource:AppResources.Map}">
     <ContentPage.ToolbarItems>
         <ToolbarItem Text="{x:Static resource:AppResources.LogOut}"
@@ -18,10 +18,10 @@
             </Grid.RowDefinitions>
 
             <StackLayout Grid.Row="0">
-                <map:Map ItemsSource="{Binding PlacesList}"
-                         InitialCameraUpdate="{Binding CameraPosition}"
-                         MapType="Street"
-                         HasZoomEnabled="True">
+                <controls:MyMap ItemsSource="{Binding PlacesList}"
+                                MapCameraPosition="{Binding MapCameraPosition, Mode=TwoWay}"
+                                MapType="Street"
+                                HasZoomEnabled="True">
                     <map:Map.Behaviors>
                         <bindings:PinClickedToCommandBehavior Command="{Binding PinClickedCommand}"/>
                     </map:Map.Behaviors>
@@ -32,7 +32,7 @@
                             </map:Pin>
                         </DataTemplate>
                     </map:Map.ItemTemplate>
-                </map:Map>
+                </controls:MyMap>
             </StackLayout>
             <ImageButton Source="my_location.png"
                          HeightRequest="60"

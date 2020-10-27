@@ -73,11 +73,13 @@
     <PackageReference Include="sqlite-net-pcl" Version="1.7.335" />
     <PackageReference Include="Xam.Plugins.Settings" Version="3.1.1" />
     <PackageReference Include="Xamarin.Forms.GoogleMaps" Version="3.2.1" />
+    <PackageReference Include="Xamarin.Forms.GoogleMaps.Clustering" Version="1.1.0" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Services\" />
     <Folder Include="Helpers\" />
     <Folder Include="Resources\" />
+    <Folder Include="Controls\" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="Mono.Android">

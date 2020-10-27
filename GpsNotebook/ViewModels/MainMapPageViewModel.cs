@@ -1,11 +1,9 @@
 ﻿using Acr.UserDialogs;
-using Android.OS;
 using GpsNotebook.Helpers;
 using GpsNotebook.Models;
 using GpsNotebook.Services;
 using GpsNotebook.Views;
 using Prism.Navigation;
-using Prism.Services;
 using System;
 using System.Collections.ObjectModel;
 using System.Windows.Input;
@@ -31,11 +29,22 @@ namespace GpsNotebook.ViewModels
             RepositoryService = repositoryService;
             RepositoryService.InitTable<PinModel>();
             PlacesList = new ObservableCollection<PinModel>();
-            CameraPosition = CameraUpdateFactory.NewCameraPosition(new CameraPosition(new Position(30, 30), 5d, 30d, 60d));
+            MapCameraPosition = new CameraPosition(new Position(45.34546, 28.79337), 8d);
         }
+
         public override void OnNavigatedTo(INavigationParameters parameters)
         {
+            if (parameters.TryGetValue(nameof(MapCameraPosition), out CameraPosition mapCameraPosition))
+            {
+                MapCameraPosition = mapCameraPosition;
+            }
+
             LoadPins();
+        }
+
+        public override void OnNavigatedFrom(INavigationParameters parameters)
+        {
+            parameters.Add(nameof(MapCameraPosition), MapCameraPosition);
         }
 
         private ObservableCollection<PinModel> placesList;
@@ -45,11 +54,11 @@ namespace GpsNotebook.ViewModels
             set { SetProperty(ref placesList, value); }
         }
 
-        private CameraUpdate cameraPosition;
-        public CameraUpdate CameraPosition
+        private CameraPosition mapCameraPosition;
+        public CameraPosition MapCameraPosition
         {
-            get { return cameraPosition; }
-            set { SetProperty(ref cameraPosition, value); }
+            get { return mapCameraPosition; }
+            set { SetProperty(ref mapCameraPosition, value); }
         }
 
         private async void PinClick(PinClickedEventArgs args)
@@ -68,20 +77,22 @@ namespace GpsNotebook.ViewModels
         {
             try
             {
-                var location = await Geolocation.GetLastKnownLocationAsync();
+                var location = await Geolocation.GetLocationAsync(new GeolocationRequest
+                {
+                    DesiredAccuracy = GeolocationAccuracy.Low,
+                    Timeout = TimeSpan.FromSeconds(30)
+                });
+
                 if (location == null)
                 {
-                    location = await Geolocation.GetLocationAsync(new GeolocationRequest
-                    {
-                        DesiredAccuracy = GeolocationAccuracy.Low,
-                        Timeout = TimeSpan.FromSeconds(30)
-                    });
+                    location = await Geolocation.GetLastKnownLocationAsync();
                 }
 
                 if (location != null)
                 {
-                    CameraPosition = CameraUpdateFactory.NewCameraPosition(new CameraPosition(
-                        new Position(location.Latitude, location.Longitude), 10d, 30d, 60d));
+                    MapCameraPosition = new CameraPosition(new Position(location.Latitude, location.Longitude), 10d);
+
+                    //await UserDialogs.Instance.AlertAsync($"{location.Latitude}; {location.Longitude}");
                 }
             }
             catch
@@ -97,7 +108,8 @@ namespace GpsNotebook.ViewModels
 
         public async void LoadPins()
         {
-            var pins = await RepositoryService.GetAllAsync<PinModel>(p => p.UserId == Settings.RememberedUserId);
+            var pins = await RepositoryService.GetAllAsync<PinModel>(p =>
+            (p.UserId == Settings.RememberedUserId && p.IsFavoirite == true));
 
             if (pins.Count != 0)
             {

@@ -3,7 +3,8 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="GpsNotebook.Views.AllPinsPage"
              xmlns:resource="clr-namespace:GpsNotebook.Resources"
-             Title="{x:Static resource:AppResources.AllPins}">
+             Title="{x:Static resource:AppResources.AllPins}"
+             x:Name="_this">
 
     <ContentPage.ToolbarItems>
         <ToolbarItem Text="{x:Static resource:AppResources.LogOut}"
@@ -22,6 +23,14 @@
                     <ListView.ItemTemplate>
                         <DataTemplate>
                             <ViewCell>
+                                <ViewCell.ContextActions>
+                                    <MenuItem Text="{x:Static resource:AppResources.Edit}"
+                                              Command="{Binding BindingContext.EditClickedCommand, Source={x:Reference _this}}"
+                                              CommandParameter="{Binding .}"/>
+                                    <MenuItem Text="{x:Static resource:AppResources.Delete}"
+                                              Command="{Binding BindingContext.DeleteClickedCommand, Source={x:Reference _this}}"
+                                              CommandParameter="{Binding .}"/>
+                                </ViewCell.ContextActions>
                                 <ViewCell.View>
                                     <Grid Padding="10">
                                         <Grid.RowDefinitions>

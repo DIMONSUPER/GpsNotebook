@@ -4,7 +4,7 @@
              xmlns:prism="http://prismlibrary.com" xmlns:map="clr-namespace:Xamarin.Forms.GoogleMaps;assembly=Xamarin.Forms.GoogleMaps" xmlns:bindings="clr-namespace:GpsNotebook.Behaviors"
              prism:ViewModelLocator.AutowireViewModel="True"
              x:Class="GpsNotebook.Views.AddPinPage"
-             xmlns:resource="clr-namespace:GpsNotebook.Resources"
+             xmlns:resource="clr-namespace:GpsNotebook.Resources" xmlns:controls="clr-namespace:GpsNotebook.Controls"
              Title="{x:Static resource:AppResources.AddPin}">
 
     <ContentPage.ToolbarItems>
@@ -17,20 +17,28 @@
     <ContentPage.Content>
         <StackLayout Padding="30,30">
             <Entry Placeholder="{x:Static resource:AppResources.Label}"
-                   Text="{Binding Pin.Label}"/>
+                   Text="{Binding SelectedPin.Label}"/>
 
             <Entry Placeholder="{x:Static resource:AppResources.Position}"
-                   Text="{Binding Pin.Position.Latitude}"
+                   Text="{Binding SelectedPin.Position.Latitude}"
                    IsEnabled="False"/>
+                   
             <Entry Placeholder="{x:Static resource:AppResources.Position}"
-                   Text="{Binding Pin.Position.Longitude}"
+                   Text="{Binding SelectedPin.Position.Longitude}"
                    IsEnabled="False"/>
+
+            <StackLayout Orientation="Horizontal">
+                <CheckBox IsChecked="{Binding IsFavourite}"/>
+                <Label Text="{x:Static resource:AppResources.Favourite}"
+                       VerticalOptions="Center"/>
+            </StackLayout>
 
             <Editor Placeholder="{x:Static resource:AppResources.Description}"
                     Text="{Binding Address}"
                     MaxLength="120"/>
             <Grid VerticalOptions="FillAndExpand">
-                <map:Map MapType="Street">
+                <controls:MyMap MapType="Street"
+                                MapCameraPosition="{Binding MapCameraPosition, Mode=TwoWay}">
                     <map:Map.Behaviors>
                         <bindings:MapClickedToCommandBehavior Command="{Binding MapClickedCommand}"/>
                         <bindings:BindingPinsBehavior Value="{Binding Pins}"/>
@@ -43,7 +51,7 @@
                             </map:Pin>
                         </DataTemplate>
                     </map:Map.ItemTemplate>
-                </map:Map>
+                </controls:MyMap>
             </Grid>
         </StackLayout>
     </ContentPage.Content>

@@ -213,6 +213,9 @@
     <PackageReference Include="Xam.Plugins.Settings">
       <Version>3.1.1</Version>
     </PackageReference>
+    <PackageReference Include="Xamarin.Forms.GoogleMaps.Clustering">
+      <Version>1.1.0</Version>
+    </PackageReference>
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\iOS\Xamarin.iOS.CSharp.targets" />
   <ItemGroup>
@@ -228,5 +231,9 @@
   <ItemGroup>
     <BundleResource Include="Resources\list_pins.png" />
     <BundleResource Include="Resources\map.png" />
+    <BundleResource Include="Resources\ic_add.png" />
+    <BundleResource Include="Resources\ic_exit_to_app.png" />
+    <BundleResource Include="Resources\ic_save.png" />
+    <BundleResource Include="Resources\my_location.png" />
   </ItemGroup>
 </Project>

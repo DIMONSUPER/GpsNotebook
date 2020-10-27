@@ -5,6 +5,7 @@ using GpsNotebook.Resources;
 using GpsNotebook.Services;
 using Prism.Navigation;
 using System.Collections.ObjectModel;
+using System.Threading;
 using System.Windows.Input;
 using Xamarin.Forms;
 using Xamarin.Forms.GoogleMaps;
@@ -28,14 +29,62 @@ namespace GpsNotebook.ViewModels
             RepositoryService = repositoryService;
             UserDialogs = userDialogs;
             RepositoryService.InitTable<PinModel>();
+            Pins = new ObservableCollection<Pin>();
+            SelectedPin = new Pin { };
         }
+
+        public override void OnNavigatedTo(INavigationParameters parameters)
+        {
+            if (parameters.TryGetValue(nameof(PinModel), out PinModel pinModel))
+            {
+                Pin = pinModel;
+                SelectedPin.Position = pinModel.Position;
+                SelectedPin.Label = pinModel.Label;
+                Pins?.Add(SelectedPin);
+                IsFavourite = pinModel.IsFavoirite;
+                Address = pinModel.Address;
+                MapCameraPosition = new CameraPosition(pinModel.Position, 10d);
+            }
+            else if (parameters.TryGetValue(nameof(MapCameraPosition), out CameraPosition mapCameraPosition))
+            {
+                MapCameraPosition = mapCameraPosition;
+            }
+        }
+
+        private bool isFavourite;
+        public bool IsFavourite
+        {
+            get { return isFavourite; }
+            set { SetProperty(ref isFavourite, value); }
+        }
+
+        private CameraPosition mapCameraPosition;
+        public CameraPosition MapCameraPosition
+        {
+            get { return mapCameraPosition; }
+            set{ SetProperty(ref mapCameraPosition, value); }
+        }
+
         public ObservableCollection<Pin> Pins { get; set; }
 
-        private Pin pin;
-        public Pin Pin
+        private PinModel pin;
+        public PinModel Pin
         {
             get { return pin; }
-            set { SetProperty(ref pin, value); }
+            set
+            {
+                SetProperty(ref pin, value);
+            }
+        }
+
+        private Pin selected_pin;
+        public Pin SelectedPin
+        {
+            get { return selected_pin; }
+            set
+            {
+                SetProperty(ref selected_pin, value);
+            }
         }
 
         private string address;
@@ -49,34 +98,36 @@ namespace GpsNotebook.ViewModels
         {
             if (args.SelectedPin != null)
             {
-                Pin.Label = args.SelectedPin.Label;
-                Pin.Position = args.SelectedPin.Position;
+                SelectedPin.Label = args.SelectedPin.Label;
+                SelectedPin.Position = args.SelectedPin.Position;
             }
         }
 
         private void MapClick(MapClickedEventArgs args)
         {
-            Pin = new Pin
+            if (string.IsNullOrEmpty(SelectedPin.Label))
             {
-                Label = $"MyPin",
-                Position = args.Point
-            };
+                SelectedPin.Label = "NewPin";
+            }
+            SelectedPin.Position = args.Point;
 
             Pins.Clear();
-            Pins.Add(Pin);
+            Pins?.Add(SelectedPin);
         }
 
         private async void SaveClick()
         {
-            if (!string.IsNullOrEmpty(Pin.Label)
-                || !string.IsNullOrEmpty(Pin.Position.Latitude.ToString())
-                || !string.IsNullOrEmpty(Pin.Position.Longitude.ToString()))
+            if (!string.IsNullOrEmpty(SelectedPin.Label)
+                || !string.IsNullOrEmpty(SelectedPin.Position.Latitude.ToString())
+                || !string.IsNullOrEmpty(SelectedPin.Position.Longitude.ToString()))
             {
                 int result = await RepositoryService.InsertAsync(new PinModel
                 {
-                    Label = Pin.Label,
-                    Position = Pin.Position,
-                    Address = this.Address,
+                    Id = Pin.Id,
+                    Label = SelectedPin.Label,
+                    Position = SelectedPin.Position,
+                    IsFavoirite = IsFavourite,
+                    Address = Address,
                     UserId = Settings.RememberedUserId
                 });
 

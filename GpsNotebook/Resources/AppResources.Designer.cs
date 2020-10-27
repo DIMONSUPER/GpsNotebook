@@ -272,5 +272,45 @@ namespace GpsNotebook.Resources {
                 return ResourceManager.GetString("Description", resourceCulture);
             }
         }
+
+        internal static string Favourite
+        {
+            get
+            {
+                return ResourceManager.GetString("Favourite", resourceCulture);
+            }
+        }
+
+        internal static string Edit
+        {
+            get
+            {
+                return ResourceManager.GetString("Edit", resourceCulture);
+            }
+        }
+
+        internal static string Delete
+        {
+            get
+            {
+                return ResourceManager.GetString("Delete", resourceCulture);
+            }
+        }
+
+        internal static string ConfirmationTitle
+        {
+            get
+            {
+                return ResourceManager.GetString("ConfirmationTitle", resourceCulture);
+            }
+        }
+
+        internal static string FieldsFilledError
+        {
+            get
+            {
+                return ResourceManager.GetString("FieldsFilledError", resourceCulture);
+            }
+        }
     }
 }

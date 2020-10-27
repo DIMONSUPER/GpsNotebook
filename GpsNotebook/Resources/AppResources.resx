@@ -225,4 +225,19 @@
   <data name="Save" xml:space="preserve">
     <value>Save</value>
   </data>
+  <data name="Favourite" xml:space="preserve">
+    <value>Favourite</value>
+  </data>
+  <data name="Edit" xml:space="preserve">
+    <value>Edit</value>
+  </data>
+  <data name="Delete" xml:space="preserve">
+    <value>Delete</value>
+  </data>
+  <data name="ConfirmationTitle" xml:space="preserve">
+    <value>Are you sure, that you want to delete?</value>
+  </data>
+  <data name="FieldsFilledError" xml:space="preserve">
+    <value>Label and position must be filled</value>
+  </data>
 </root>

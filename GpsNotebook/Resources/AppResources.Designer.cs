@@ -312,5 +312,13 @@ namespace GpsNotebook.Resources {
                 return ResourceManager.GetString("FieldsFilledError", resourceCulture);
             }
         }
+
+        internal static string Search
+        {
+            get
+            {
+                return ResourceManager.GetString("Search", resourceCulture);
+            }
+        }
     }
 }

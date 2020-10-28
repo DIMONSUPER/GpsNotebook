@@ -5,7 +5,6 @@ using GpsNotebook.Resources;
 using GpsNotebook.Services;
 using Prism.Navigation;
 using System.Collections.ObjectModel;
-using System.Threading;
 using System.Windows.Input;
 using Xamarin.Forms;
 using Xamarin.Forms.GoogleMaps;
@@ -47,6 +46,7 @@ namespace GpsNotebook.ViewModels
             }
             else if (parameters.TryGetValue(nameof(MapCameraPosition), out CameraPosition mapCameraPosition))
             {
+                Pin = new PinModel();
                 MapCameraPosition = mapCameraPosition;
             }
         }
@@ -62,7 +62,7 @@ namespace GpsNotebook.ViewModels
         public CameraPosition MapCameraPosition
         {
             get { return mapCameraPosition; }
-            set{ SetProperty(ref mapCameraPosition, value); }
+            set { SetProperty(ref mapCameraPosition, value); }
         }
 
         public ObservableCollection<Pin> Pins { get; set; }
@@ -118,8 +118,8 @@ namespace GpsNotebook.ViewModels
         private async void SaveClick()
         {
             if (!string.IsNullOrEmpty(SelectedPin.Label)
-                || !string.IsNullOrEmpty(SelectedPin.Position.Latitude.ToString())
-                || !string.IsNullOrEmpty(SelectedPin.Position.Longitude.ToString()))
+                && !string.IsNullOrEmpty(SelectedPin.Position.Latitude.ToString())
+                && !string.IsNullOrEmpty(SelectedPin.Position.Longitude.ToString()))
             {
                 int result = await RepositoryService.InsertAsync(new PinModel
                 {
@@ -138,7 +138,7 @@ namespace GpsNotebook.ViewModels
             }
             else
             {
-                UserDialogs.Alert(AppResources.NameInvalid);
+                UserDialogs.Alert(AppResources.FieldsFilledError);
             }
         }
     }

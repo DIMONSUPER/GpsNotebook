@@ -33,8 +33,8 @@
                 <CheckBox IsChecked="{Binding IsFavourite}"/>
                 <Label Text="{x:Static resource:AppResources.Favourite}"
                        VerticalOptions="Center"/>
-            </StackLayout>
 
+            </StackLayout>
             <Editor Placeholder="{x:Static resource:AppResources.Description}"
                     Text="{Binding Description}"
                     MaxLength="120"/>
@@ -44,16 +44,19 @@
                                 IsShowingUser="False"
                                 MapType="Street"
                                 MapCameraPosition="{Binding MapCameraPosition, Mode=TwoWay}">
+
                     <map:Map.Behaviors>
                         <prism:EventToCommandBehavior EventName="MapClicked"
                                                       Command="{Binding MapClickedCommand}"
                                                       EventArgsParameterPath="Point"/>
+
                     </map:Map.Behaviors>
                     <map:Map.ItemTemplate>
                         <DataTemplate>
                             <map:Pin Position="{Binding Position, Mode=OneWay}"
                                      Label="{Binding Label}">
                             </map:Pin>
+
                         </DataTemplate>
                     </map:Map.ItemTemplate>
                 </controls:MyMap>

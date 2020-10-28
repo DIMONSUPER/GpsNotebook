@@ -1,6 +1,7 @@
 ﻿<?xml version="1.0" encoding="UTF-8"?>
 <ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:prism="http://prismlibrary.com"
              x:Class="GpsNotebook.Views.AllPinsPage"
              xmlns:resource="clr-namespace:GpsNotebook.Resources"
              Title="{x:Static resource:AppResources.AllPins}"
@@ -11,15 +12,29 @@
                      IconImageSource="ic_exit_to_app.png"
                      Command="{Binding LogOutClickedCommand}"/>
     </ContentPage.ToolbarItems>
+
     <ContentPage.Content>
         <Grid>
             <Grid.RowDefinitions>
                 <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
+
             <StackLayout  Grid.Row="0">
+                <SearchBar Text="{Binding SearchBarText}" Placeholder="{x:Static resource:AppResources.Search}"
+                           FontAttributes="Italic"
+                           BackgroundColor="Transparent">
+
+                    <SearchBar.Behaviors>
+                        <prism:EventToCommandBehavior EventName="TextChanged"
+                                                      Command="{Binding SearchOnTextChangedCommand}"/>
+
+                    </SearchBar.Behaviors>
+                </SearchBar>
+
                 <ListView ItemsSource="{Binding PlacesList}"
                           HasUnevenRows="True"
                           SelectedItem="{Binding SelectedPin, Mode=TwoWay}">
+
                     <ListView.ItemTemplate>
                         <DataTemplate>
                             <ViewCell>
@@ -31,6 +46,7 @@
                                               Command="{Binding BindingContext.DeleteClickedCommand, Source={x:Reference _this}}"
                                               CommandParameter="{Binding .}"/>
                                 </ViewCell.ContextActions>
+
                                 <ViewCell.View>
                                     <Grid Padding="10">
                                         <Grid.RowDefinitions>
@@ -67,6 +83,7 @@
                     </ListView.ItemTemplate>
                 </ListView>
             </StackLayout>
+
             <ImageButton Source="ic_add.png" 
                          BackgroundColor="RoyalBlue"
                          CornerRadius="100"

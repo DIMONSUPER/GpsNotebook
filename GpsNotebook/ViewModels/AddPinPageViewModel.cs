@@ -3,6 +3,7 @@ using GpsNotebook.Helpers;
 using GpsNotebook.Models;
 using GpsNotebook.Resources;
 using GpsNotebook.Services;
+using GpsNotebook.Services.LocationService;
 using Prism.Navigation;
 using System.Collections.ObjectModel;
 using System.Windows.Input;
@@ -18,17 +19,20 @@ namespace GpsNotebook.ViewModels
 
         private IRepositoryService RepositoryService { get; }
         private IUserDialogs UserDialogs { get; }
+        private ILocationService LocationService { get; }
 
         private int pinId;
 
         public AddPinPageViewModel(
             INavigationService navigationService,
             IRepositoryService repositoryService,
-            IUserDialogs userDialogs)
+            IUserDialogs userDialogs,
+            ILocationService locationService)
             : base(navigationService)
         {
             RepositoryService = repositoryService;
             UserDialogs = userDialogs;
+            LocationService = locationService;
             RepositoryService.InitTable<PinModel>();
         }
 
@@ -40,19 +44,25 @@ namespace GpsNotebook.ViewModels
             }
             if (parameters.TryGetValue(nameof(PinModel), out PinModel pinModel))
             {
+                if (double.TryParse(pinModel.Latitude, out double latitude)
+                    && double.TryParse(pinModel.Longitude, out double longitude))
+                {
+                    Latitude = latitude;
+                    Longitude = longitude;
+                }
+
                 pinId = pinModel.Id;
                 Label = pinModel.Label;
                 Description = pinModel.Description;
                 IsFavourite = pinModel.IsFavourite;
-                Latitude = pinModel.Latitude;
-                Longitude = pinModel.Longitude;
 
-                Pins?.Add(pinModel);
-                MapCameraPosition = new CameraPosition(pinModel.Position, 10d);
+                Pins.Add(pinModel);
+
+                MapCameraPosition = new CameraPosition(new Position(Latitude, Longitude), 10d);
             }
-            else if (parameters.TryGetValue(nameof(MapCameraPosition), out CameraPosition mapCameraPosition))
+            else
             {
-                MapCameraPosition = mapCameraPosition;
+                MapCameraPosition = LocationService.GetCameraLocation();
             }
         }
 
@@ -84,11 +94,11 @@ namespace GpsNotebook.ViewModels
             set { SetProperty(ref latitude, value); }
         }
 
-        private double longtitude;
+        private double longitude;
         public double Longitude
         {
-            get { return longtitude; }
-            set { SetProperty(ref longtitude, value); }
+            get { return longitude; }
+            set { SetProperty(ref longitude, value); }
         }
 
         private CameraPosition mapCameraPosition;
@@ -105,15 +115,6 @@ namespace GpsNotebook.ViewModels
             set { SetProperty(ref pins, value); }
         }
 
-        private void SelectedPinChanged(Pin selectedPin)
-        {
-            if (selectedPin != null)
-            {
-                selectedPin.Label = selectedPin.Label;
-                selectedPin.Position = selectedPin.Position;
-            }
-        }
-
         private void MapClick(Position point)
         {
             if (string.IsNullOrEmpty(Label))
@@ -128,18 +129,17 @@ namespace GpsNotebook.ViewModels
                 Label = Label,
                 Description = Description,
                 IsFavourite = IsFavourite,
-                Latitude = Latitude,
-                Longitude = Longitude,
+                Latitude = Latitude.ToString(),
+                Longitude = Longitude.ToString(),
                 UserId = Settings.RememberedUserId
             };
-            Pins?.Add(newPin);
+            Pins.Add(newPin);
         }
 
         private async void SaveClick()
         {
             if (!string.IsNullOrEmpty(Label)
-                && !string.IsNullOrEmpty(Latitude.ToString())
-                && !string.IsNullOrEmpty(Longitude.ToString()))
+                && Latitude != 0 && Longitude != 0)
             {
                 int result = await RepositoryService.InsertAsync(new PinModel
                 {
@@ -147,8 +147,8 @@ namespace GpsNotebook.ViewModels
                     Label = Label,
                     Description = Description,
                     IsFavourite = IsFavourite,
-                    Latitude = Latitude,
-                    Longitude = Longitude,
+                    Latitude = Latitude.ToString(),
+                    Longitude = Longitude.ToString(),
                     UserId = Settings.RememberedUserId
                 });
 

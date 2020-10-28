@@ -20,6 +20,7 @@ namespace GpsNotebook.ViewModels
         public ICommand EditClickedCommand => new Command<PinModel>(EditClick);
         public ICommand DeleteClickedCommand => new Command<PinModel>(DeleteClick);
         public ICommand PinClickedCommand => new Command<PinModel>(PinClick);
+        public ICommand SearchOnTextChangedCommand => new Command(SearchOnTextChanged);
 
         private IRepositoryService RepositoryService { get; }
         private IUserDialogs UserDialogs { get; }
@@ -37,6 +38,13 @@ namespace GpsNotebook.ViewModels
         public override async void OnNavigatedTo(INavigationParameters parameters)
         {
             await RefreshList();
+        }
+
+        private string _searchBarText;
+        public string SearchBarText
+        {
+            get { return _searchBarText; }
+            set { SetProperty(ref _searchBarText, value); }
         }
 
         private CameraPosition mapCameraPosition;
@@ -78,6 +86,23 @@ namespace GpsNotebook.ViewModels
             }
         }
 
+        private async void SearchOnTextChanged()
+        {
+            PlacesList.Clear();
+            if (string.IsNullOrEmpty(SearchBarText))
+            {
+                await RefreshList();
+            }
+            else
+            {
+                var pins = await RepositoryService.GetAllAsync<PinModel>(p => (p.UserId == Settings.RememberedUserId)
+                && (p.Label.Contains(SearchBarText) || p.Description.Contains(SearchBarText)
+                || p.Latitude.Contains(SearchBarText) || p.Longitude.Contains(SearchBarText)));
+
+                PlacesList = new ObservableCollection<PinModel>(pins);
+            }
+        }
+
         private async void EditClick(PinModel pinModel)
         {
             var parametеrs = new NavigationParameters
@@ -90,12 +115,7 @@ namespace GpsNotebook.ViewModels
 
         private async void AddButtonClick()
         {
-            var parameters = new NavigationParameters
-            {
-                { nameof(MapCameraPosition), MapCameraPosition }
-            };
-
-            await NavigationService.NavigateAsync(nameof(AddPinPage), parameters);
+            await NavigationService.NavigateAsync(nameof(AddPinPage));
         }
 
         private async Task RefreshList()
@@ -113,18 +133,22 @@ namespace GpsNotebook.ViewModels
 
         private async void PinClick(PinModel model)
         {
-            MapCameraPosition = new CameraPosition(model.Position, 10d);
-            var parameters = new NavigationParameters
+            if (double.TryParse(model.Latitude, out double latitude)
+                && double.TryParse(model.Longitude, out double longitude))
+            {
+                MapCameraPosition = new CameraPosition(new Position(latitude, longitude), 10d);
+                var parameters = new NavigationParameters
             {
                 { nameof(MapCameraPosition), MapCameraPosition },
                 { nameof(SelectedPin), SelectedPin }
             };
 
-            await NavigationService.NavigateAsync(
-                $"/{nameof(NavigationPage)}" +
-                $"/{nameof(MainTabbedPage)}" +
-                $"?{nameof(KnownNavigationParameters.SelectedTab)}" +
-                $"={nameof(MainMapPage)}", parameters);
+                await NavigationService.NavigateAsync(
+                    $"/{nameof(NavigationPage)}" +
+                    $"/{nameof(MainTabbedPage)}" +
+                    $"?{nameof(KnownNavigationParameters.SelectedTab)}" +
+                    $"={nameof(MainMapPage)}", parameters);
+            }
         }
     }
 }

@@ -24,8 +24,8 @@
                 <controls:CustomEntry Placeholder="{x:Static resource:AppResources.ConfirmPassword}"
                        IsPassword="True"
                        Text="{Binding ConfirmUserPassword}"/>
-
             </StackLayout>
+
             <Button Text="{x:Static resource:AppResources.SignUp}"
                     TextColor="Black"
                     FontAttributes="Bold"
@@ -37,7 +37,6 @@
                     BorderWidth="1"
                     HeightRequest="75"
                     Command="{Binding SignUpClickCommand}"/>
-
         </StackLayout>
     </ContentPage.Content>
 </ContentPage>

@@ -1,6 +1,7 @@
 ﻿using Acr.UserDialogs;
 using GpsNotebook.Helpers;
 using GpsNotebook.Services;
+using GpsNotebook.Services.LocationService;
 using GpsNotebook.ViewModels;
 using GpsNotebook.Views;
 using Plugin.Settings;
@@ -36,6 +37,7 @@ namespace GpsNotebook
         protected override void RegisterTypes(IContainerRegistry containerRegistry)
         {
             containerRegistry.RegisterInstance<IRepositoryService>(Container.Resolve<RepositoryService>());
+            containerRegistry.RegisterInstance<ILocationService>(Container.Resolve<LocationService>());
 
             containerRegistry.RegisterInstance(UserDialogs.Instance);
             containerRegistry.RegisterInstance(CrossSettings.Current);

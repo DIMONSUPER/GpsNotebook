@@ -1,5 +1,4 @@
 ﻿using SQLite;
-using Xamarin.Essentials;
 using Xamarin.Forms.GoogleMaps;
 
 namespace GpsNotebook.Models
@@ -14,17 +13,17 @@ namespace GpsNotebook.Models
         public string Description { get; set; }
         public string Icon { get; set; }
         public bool IsFavourite { get; set; }
-        public double Latitude { get; set; }
-        public double Longitude { get; set; }
+        public string Latitude { get; set; }
+        public string Longitude { get; set; }
 
         [Ignore]
         public Position Position
         {
-            get { return new Position(Latitude, Longitude); }
+            get { return new Position(double.Parse(Latitude),double.Parse(Longitude)); }
             set
             {
-                Latitude = value.Latitude;
-                Longitude = value.Longitude;
+                Latitude = value.Latitude.ToString();
+                Longitude = value.Longitude.ToString();
             }
         }
     }

@@ -1,7 +1,7 @@
-﻿using System;
-using Xamarin.Forms;
+﻿using Xamarin.Forms;
 using Xamarin.Forms.GoogleMaps;
 using Xamarin.Forms.GoogleMaps.Clustering;
+
 namespace GpsNotebook.Controls
 {
     public class MyMap : ClusteredMap

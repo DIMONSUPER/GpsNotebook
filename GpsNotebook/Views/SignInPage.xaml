@@ -19,8 +19,8 @@
                        FontSize="30"
                        IsPassword="True"
                        Text="{Binding UserPassword}"/>
-
             </StackLayout>
+
             <Button Text="{x:Static resource:AppResources.SignIn}"
                     TextColor="Black"
                     FontAttributes="Bold"

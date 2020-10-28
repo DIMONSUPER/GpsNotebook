@@ -80,6 +80,7 @@
     <Folder Include="Helpers\" />
     <Folder Include="Resources\" />
     <Folder Include="Controls\" />
+    <Folder Include="Services\LocationService\" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="Mono.Android">

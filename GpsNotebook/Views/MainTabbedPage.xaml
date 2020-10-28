@@ -5,6 +5,8 @@
             x:Class="GpsNotebook.Views.MainTabbedPage"
             xmlns:resource="clr-namespace:GpsNotebook.Resources"
             xmlns:behaviors="clr-namespace:GpsNotebook.Behaviors"
+            xmlns:android="clr-namespace:Xamarin.Forms.PlatformConfiguration.AndroidSpecific;assembly=Xamarin.Forms.Core"
+            android:TabbedPage.ToolbarPlacement="Bottom"
             Title="{x:Static resource:AppResources.MainPage}">
 
     <TabbedPage.Behaviors>
@@ -12,7 +14,7 @@
     </TabbedPage.Behaviors>
 
     <TabbedPage.Children>
-        <views:MainMapPage Title="{x:Static resource:AppResources.Map}"/>
+        <views:MainMapPage Title="{x:Static resource:AppResources.Map}" />
         <views:AllPinsPage Title="{x:Static resource:AppResources.AllPins}"/>
     </TabbedPage.Children>
 </TabbedPage>

@@ -2,6 +2,7 @@
 <ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:resource="clr-namespace:GpsNotebook.Resources"
+             xmlns:controls="clr-namespace:GpsNotebook.Controls"
              x:Class="GpsNotebook.Views.SignUpPage"
              Title="{x:Static resource:AppResources.SignUp}">
     <ContentPage.Content>
@@ -10,17 +11,17 @@
                      Padding="30,0"
                      Spacing="0">
             <StackLayout VerticalOptions="CenterAndExpand">
-                <Entry Placeholder="{x:Static resource:AppResources.Email}"
+                <controls:CustomEntry Placeholder="{x:Static resource:AppResources.Email}"
                        Text="{Binding UserEmail}"/>
 
-                <Entry Placeholder="{x:Static resource:AppResources.Name}"
+                <controls:CustomEntry Placeholder="{x:Static resource:AppResources.Name}"
                        Text="{Binding UserName}"/>
 
-                <Entry Placeholder="{x:Static resource:AppResources.Password}"
+                <controls:CustomEntry Placeholder="{x:Static resource:AppResources.Password}"
                        IsPassword="True"
                        Text="{Binding UserPassword}"/>
 
-                <Entry Placeholder="{x:Static resource:AppResources.ConfirmPassword}"
+                <controls:CustomEntry Placeholder="{x:Static resource:AppResources.ConfirmPassword}"
                        IsPassword="True"
                        Text="{Binding ConfirmUserPassword}"/>
 

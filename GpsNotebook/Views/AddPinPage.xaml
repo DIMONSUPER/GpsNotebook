@@ -16,14 +16,14 @@
 
     <ContentPage.Content>
         <StackLayout Padding="30,30">
-            <Entry Placeholder="{x:Static resource:AppResources.Label}"
+            <controls:CustomEntry Placeholder="{x:Static resource:AppResources.Label}"
                    Text="{Binding SelectedPin.Label}"/>
 
-            <Entry Placeholder="{x:Static resource:AppResources.Position}"
+            <controls:CustomEntry Placeholder="{x:Static resource:AppResources.Position}"
                    Text="{Binding SelectedPin.Position.Latitude}"
                    IsEnabled="False"/>
                    
-            <Entry Placeholder="{x:Static resource:AppResources.Position}"
+            <controls:CustomEntry Placeholder="{x:Static resource:AppResources.Position}"
                    Text="{Binding SelectedPin.Position.Longitude}"
                    IsEnabled="False"/>
 

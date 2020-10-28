@@ -114,6 +114,7 @@
     <None Include="Entitlements.plist" />
     <None Include="Info.plist" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Renderers\CustomEntryRendererIos.cs" />
   </ItemGroup>
   <ItemGroup>
     <InterfaceDefinition Include="Resources\LaunchScreen.storyboard" />
@@ -227,6 +228,7 @@
   <ItemGroup>
     <Folder Include="Assets.xcassets\map.imageset\" />
     <Folder Include="Assets.xcassets\list_pins.imageset\" />
+    <Folder Include="Renderers\" />
   </ItemGroup>
   <ItemGroup>
     <BundleResource Include="Resources\list_pins.png" />

@@ -4,7 +4,7 @@ using Xamarin.Forms.GoogleMaps;
 using Xamarin.Forms.GoogleMaps.Clustering;
 namespace GpsNotebook.Controls
 {
-    public class MyMap:ClusteredMap
+    public class MyMap : ClusteredMap
     {
         public MyMap()
         {
@@ -35,6 +35,7 @@ namespace GpsNotebook.Controls
                 && newValue is CameraPosition cameraPosition
                 && cameraPosition.Target != castedMap.CameraPosition.Target)
             {
+                castedMap.InitialCameraUpdate = CameraUpdateFactory.NewCameraPosition(cameraPosition);
                 castedMap.MoveCamera(CameraUpdateFactory.NewCameraPosition(cameraPosition));
             }
         }

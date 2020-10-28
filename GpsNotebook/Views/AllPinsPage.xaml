@@ -43,6 +43,7 @@
                                         <Grid.ColumnDefinitions>
                                             <ColumnDefinition Width="Auto" />
                                         </Grid.ColumnDefinitions>
+
                                         <Label Grid.Column="0"
                                                Text="{Binding Label}"
                                                FontAttributes="Bold"/>
@@ -56,7 +57,7 @@
                                                VerticalOptions="Center"/>
 
                                         <Label Grid.Row="3"
-                                               Text="{Binding Address}"
+                                               Text="{Binding Description}"
                                                FontAttributes="Italic"
                                                VerticalOptions="End"/>
                                     </Grid>

@@ -5,8 +5,8 @@ using GpsNotebook.Resources;
 using GpsNotebook.Services;
 using GpsNotebook.Views;
 using Prism.Navigation;
-using Prism.Services;
 using System.Collections.ObjectModel;
+using System.Threading.Tasks;
 using System.Windows.Input;
 using Xamarin.Forms;
 using Xamarin.Forms.GoogleMaps;
@@ -34,9 +34,9 @@ namespace GpsNotebook.ViewModels
             UserDialogs = userDialogs;
         }
 
-        public override void OnNavigatedTo(INavigationParameters parameters)
+        public override async void OnNavigatedTo(INavigationParameters parameters)
         {
-            RefreshList();
+            await RefreshList();
         }
 
         private CameraPosition mapCameraPosition;
@@ -74,7 +74,7 @@ namespace GpsNotebook.ViewModels
             if (result)
             {
                 await RepositoryService.DeleteAsync(pinModel);
-                RefreshList();
+                await RefreshList();
             }
         }
 
@@ -98,14 +98,11 @@ namespace GpsNotebook.ViewModels
             await NavigationService.NavigateAsync(nameof(AddPinPage), parameters);
         }
 
-        private async void RefreshList()
+        private async Task RefreshList()
         {
             var pins = await RepositoryService.GetAllAsync<PinModel>(p => p.UserId == Settings.RememberedUserId);
 
-            if (pins.Count != 0)
-            {
-                PlacesList = new ObservableCollection<PinModel>(pins);
-            }
+            PlacesList = new ObservableCollection<PinModel>(pins);
         }
 
         private async void LogOutClick()
@@ -119,11 +116,13 @@ namespace GpsNotebook.ViewModels
             MapCameraPosition = new CameraPosition(model.Position, 10d);
             var parameters = new NavigationParameters
             {
-                { nameof(MapCameraPosition), MapCameraPosition }
+                { nameof(MapCameraPosition), MapCameraPosition },
+                { nameof(SelectedPin), SelectedPin }
             };
 
             await NavigationService.NavigateAsync(
-                $"{nameof(MainTabbedPage)}" +
+                $"/{nameof(NavigationPage)}" +
+                $"/{nameof(MainTabbedPage)}" +
                 $"?{nameof(KnownNavigationParameters.SelectedTab)}" +
                 $"={nameof(MainMapPage)}", parameters);
         }

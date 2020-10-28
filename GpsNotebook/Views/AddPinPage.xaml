@@ -1,7 +1,9 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             xmlns:prism="http://prismlibrary.com" xmlns:map="clr-namespace:Xamarin.Forms.GoogleMaps;assembly=Xamarin.Forms.GoogleMaps" xmlns:bindings="clr-namespace:GpsNotebook.Behaviors"
+             xmlns:prism="http://prismlibrary.com"
+             xmlns:map="clr-namespace:Xamarin.Forms.GoogleMaps;assembly=Xamarin.Forms.GoogleMaps"
+             xmlns:bindings="clr-namespace:GpsNotebook.Behaviors"
              prism:ViewModelLocator.AutowireViewModel="True"
              x:Class="GpsNotebook.Views.AddPinPage"
              xmlns:resource="clr-namespace:GpsNotebook.Resources" xmlns:controls="clr-namespace:GpsNotebook.Controls"
@@ -17,14 +19,14 @@
     <ContentPage.Content>
         <StackLayout Padding="30,30">
             <controls:CustomEntry Placeholder="{x:Static resource:AppResources.Label}"
-                   Text="{Binding SelectedPin.Label}"/>
+                   Text="{Binding Label}"/>
 
             <controls:CustomEntry Placeholder="{x:Static resource:AppResources.Position}"
-                   Text="{Binding SelectedPin.Position.Latitude}"
+                   Text="{Binding Latitude, Mode=OneWay}"
                    IsEnabled="False"/>
                    
             <controls:CustomEntry Placeholder="{x:Static resource:AppResources.Position}"
-                   Text="{Binding SelectedPin.Position.Longitude}"
+                   Text="{Binding Longitude, Mode=OneWay}"
                    IsEnabled="False"/>
 
             <StackLayout Orientation="Horizontal">
@@ -34,20 +36,23 @@
             </StackLayout>
 
             <Editor Placeholder="{x:Static resource:AppResources.Description}"
-                    Text="{Binding Address}"
+                    Text="{Binding Description}"
                     MaxLength="120"/>
+
             <Grid VerticalOptions="FillAndExpand">
-                <controls:MyMap MapType="Street"
+                <controls:MyMap ItemsSource="{Binding Pins}"
+                                IsShowingUser="False"
+                                MapType="Street"
                                 MapCameraPosition="{Binding MapCameraPosition, Mode=TwoWay}">
                     <map:Map.Behaviors>
-                        <bindings:MapClickedToCommandBehavior Command="{Binding MapClickedCommand}"/>
-                        <bindings:BindingPinsBehavior Value="{Binding Pins}"/>
-                        <bindings:SelectedPinChangedToCommandBehavior Command="{Binding SelectedPinChangedCommand}"/>
+                        <prism:EventToCommandBehavior EventName="MapClicked"
+                                                      Command="{Binding MapClickedCommand}"
+                                                      EventArgsParameterPath="Point"/>
                     </map:Map.Behaviors>
                     <map:Map.ItemTemplate>
                         <DataTemplate>
-                            <map:Pin Position="{Binding Position}"
-                                 Label="{Binding PlaceName}">
+                            <map:Pin Position="{Binding Position, Mode=OneWay}"
+                                     Label="{Binding Label}">
                             </map:Pin>
                         </DataTemplate>
                     </map:Map.ItemTemplate>

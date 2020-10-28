@@ -13,12 +13,14 @@ namespace GpsNotebook.ViewModels
 {
     public class AddPinPageViewModel : ViewModelBase
     {
-        public ICommand MapClickedCommand => new Command<MapClickedEventArgs>(MapClick);
-        public ICommand SelectedPinChangedCommand => new Command<SelectedPinChangedEventArgs>(SelectedPinChanged);
+        public ICommand MapClickedCommand => new Command<Position>(MapClick);
         public ICommand SaveClickedCommand => new Command(SaveClick);
 
         private IRepositoryService RepositoryService { get; }
         private IUserDialogs UserDialogs { get; }
+
+        private int pinId;
+
         public AddPinPageViewModel(
             INavigationService navigationService,
             IRepositoryService repositoryService,
@@ -28,27 +30,44 @@ namespace GpsNotebook.ViewModels
             RepositoryService = repositoryService;
             UserDialogs = userDialogs;
             RepositoryService.InitTable<PinModel>();
-            Pins = new ObservableCollection<Pin>();
-            SelectedPin = new Pin { };
         }
 
         public override void OnNavigatedTo(INavigationParameters parameters)
         {
+            if (Pins == null)
+            {
+                Pins = new ObservableCollection<PinModel>();
+            }
             if (parameters.TryGetValue(nameof(PinModel), out PinModel pinModel))
             {
-                Pin = pinModel;
-                SelectedPin.Position = pinModel.Position;
-                SelectedPin.Label = pinModel.Label;
-                Pins?.Add(SelectedPin);
-                IsFavourite = pinModel.IsFavoirite;
-                Address = pinModel.Address;
+                pinId = pinModel.Id;
+                Label = pinModel.Label;
+                Description = pinModel.Description;
+                IsFavourite = pinModel.IsFavourite;
+                Latitude = pinModel.Latitude;
+                Longitude = pinModel.Longitude;
+
+                Pins?.Add(pinModel);
                 MapCameraPosition = new CameraPosition(pinModel.Position, 10d);
             }
             else if (parameters.TryGetValue(nameof(MapCameraPosition), out CameraPosition mapCameraPosition))
             {
-                Pin = new PinModel();
                 MapCameraPosition = mapCameraPosition;
             }
+        }
+
+        private string label;
+        public string Label
+        {
+            get { return label; }
+            set { SetProperty(ref label, value); }
+        }
+
+        private string description;
+        public string Description
+        {
+            get { return description; }
+            set { SetProperty(ref description, value); }
         }
 
         private bool isFavourite;
@@ -58,6 +77,20 @@ namespace GpsNotebook.ViewModels
             set { SetProperty(ref isFavourite, value); }
         }
 
+        private double latitude;
+        public double Latitude
+        {
+            get { return latitude; }
+            set { SetProperty(ref latitude, value); }
+        }
+
+        private double longtitude;
+        public double Longitude
+        {
+            get { return longtitude; }
+            set { SetProperty(ref longtitude, value); }
+        }
+
         private CameraPosition mapCameraPosition;
         public CameraPosition MapCameraPosition
         {
@@ -65,69 +98,57 @@ namespace GpsNotebook.ViewModels
             set { SetProperty(ref mapCameraPosition, value); }
         }
 
-        public ObservableCollection<Pin> Pins { get; set; }
-
-        private PinModel pin;
-        public PinModel Pin
+        private ObservableCollection<PinModel> pins;
+        public ObservableCollection<PinModel> Pins
         {
-            get { return pin; }
-            set
+            get { return pins; }
+            set { SetProperty(ref pins, value); }
+        }
+
+        private void SelectedPinChanged(Pin selectedPin)
+        {
+            if (selectedPin != null)
             {
-                SetProperty(ref pin, value);
+                selectedPin.Label = selectedPin.Label;
+                selectedPin.Position = selectedPin.Position;
             }
         }
 
-        private Pin selected_pin;
-        public Pin SelectedPin
+        private void MapClick(Position point)
         {
-            get { return selected_pin; }
-            set
+            if (string.IsNullOrEmpty(Label))
             {
-                SetProperty(ref selected_pin, value);
+                Label = "NewPin";
             }
-        }
-
-        private string address;
-        public string Address
-        {
-            get { return address; }
-            set { SetProperty(ref address, value); }
-        }
-
-        private void SelectedPinChanged(SelectedPinChangedEventArgs args)
-        {
-            if (args.SelectedPin != null)
-            {
-                SelectedPin.Label = args.SelectedPin.Label;
-                SelectedPin.Position = args.SelectedPin.Position;
-            }
-        }
-
-        private void MapClick(MapClickedEventArgs args)
-        {
-            if (string.IsNullOrEmpty(SelectedPin.Label))
-            {
-                SelectedPin.Label = "NewPin";
-            }
-            SelectedPin.Position = args.Point;
-
+            Latitude = point.Latitude;
+            Longitude = point.Longitude;
             Pins.Clear();
-            Pins?.Add(SelectedPin);
+            var newPin = new PinModel
+            {
+                Label = Label,
+                Description = Description,
+                IsFavourite = IsFavourite,
+                Latitude = Latitude,
+                Longitude = Longitude,
+                UserId = Settings.RememberedUserId
+            };
+            Pins?.Add(newPin);
         }
 
         private async void SaveClick()
         {
-            if (!string.IsNullOrEmpty(SelectedPin.Label)
-                && !string.IsNullOrEmpty(SelectedPin.Position.Latitude.ToString())
-                && !string.IsNullOrEmpty(SelectedPin.Position.Longitude.ToString()))
+            if (!string.IsNullOrEmpty(Label)
+                && !string.IsNullOrEmpty(Latitude.ToString())
+                && !string.IsNullOrEmpty(Longitude.ToString()))
             {
                 int result = await RepositoryService.InsertAsync(new PinModel
                 {
-                    Id = Pin.Id,
-                    Label = SelectedPin.Label,
-                    Position = SelectedPin.Position,
-                    IsFavoirite = IsFavourite,
-                    Address = Address,
+                    Id = pinId,
+                    Label = Label,
+                    Description = Description,
+                    IsFavourite = IsFavourite,
+                    Latitude = Latitude,
+                    Longitude = Longitude,
                     UserId = Settings.RememberedUserId
                 });
 

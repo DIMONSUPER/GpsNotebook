@@ -6,6 +6,7 @@ using GpsNotebook.Views;
 using Prism.Navigation;
 using System;
 using System.Collections.ObjectModel;
+using System.Threading.Tasks;
 using System.Windows.Input;
 using Xamarin.Essentials;
 using Xamarin.Forms;
@@ -15,7 +16,7 @@ namespace GpsNotebook.ViewModels
 {
     public class MainMapPageViewModel : ViewModelBase
     {
-        public ICommand PinClickedCommand => new Command<PinClickedEventArgs>(PinClick);
+        public ICommand PinClickedCommand => new Command<Pin>(PinClick);
         public ICommand LogOutClickedCommand => new Command(LogOutClick);
         public ICommand CurrentLocationClickedCommand => new Command(CurrentLocationClick);
 
@@ -29,17 +30,21 @@ namespace GpsNotebook.ViewModels
             RepositoryService = repositoryService;
             RepositoryService.InitTable<PinModel>();
             PlacesList = new ObservableCollection<PinModel>();
-            MapCameraPosition = new CameraPosition(new Position(45.34546, 28.79337), 8d);
         }
 
-        public override void OnNavigatedTo(INavigationParameters parameters)
+        public override async void OnNavigatedTo(INavigationParameters parameters)
         {
+            await LoadPins();
+
+            if (parameters.TryGetValue("SelectedPin", out PinModel selectedPin))
+            {
+                PlacesList.Add(selectedPin);
+            }
+
             if (parameters.TryGetValue(nameof(MapCameraPosition), out CameraPosition mapCameraPosition))
             {
                 MapCameraPosition = mapCameraPosition;
             }
-
-            LoadPins();
         }
 
         public override void OnNavigatedFrom(INavigationParameters parameters)
@@ -61,15 +66,15 @@ namespace GpsNotebook.ViewModels
             set { SetProperty(ref mapCameraPosition, value); }
         }
 
-        private async void PinClick(PinClickedEventArgs args)
+        private async void PinClick(Pin pin)
         {
             var parameters = new NavigationParameters
             {
-                { nameof(args.Pin.Label),args.Pin.Label },
-                { nameof(args.Pin.Address),args.Pin.Address },
-                { nameof(args.Pin.Position),args.Pin.Position }
+                { nameof(pin.Label), pin.Label },
+                { nameof(pin.Address), pin.Address },
+                { nameof(pin.Position), pin.Position }
             };
-            
+
             //await NavigationService.NavigateAsync(nameof(PinInfoPage), parameters);
         }
 
@@ -106,15 +111,12 @@ namespace GpsNotebook.ViewModels
             await NavigationService.NavigateAsync($"/{nameof(NavigationPage)}/{nameof(SignInPage)}");
         }
 
-        public async void LoadPins()
+        public async Task LoadPins()
         {
             var pins = await RepositoryService.GetAllAsync<PinModel>(p =>
-            (p.UserId == Settings.RememberedUserId && p.IsFavoirite == true));
+            (p.UserId == Settings.RememberedUserId && p.IsFavourite == true));
 
-            if (pins.Count != 0)
-            {
-                PlacesList = new ObservableCollection<PinModel>(pins);
-            }
+            PlacesList = new ObservableCollection<PinModel>(pins);
         }
     }
 }

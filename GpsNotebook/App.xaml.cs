@@ -8,7 +8,9 @@ using Plugin.Settings;
 using Prism;
 using Prism.Ioc;
 using Prism.Navigation;
+using Prism.Plugin.Popups;
 using Prism.Unity;
+using Rg.Plugins.Popup.Services;
 using Xamarin.Forms;
 
 namespace GpsNotebook
@@ -22,15 +24,13 @@ namespace GpsNotebook
             InitializeComponent();
             if (string.IsNullOrEmpty(Settings.RememberedEmail))
             {
-                await NavigationService.NavigateAsync($"/{nameof(NavigationPage)}/{nameof(SignInPage)}");
+                await NavigationService.NavigateAsync($"{nameof(NavigationPage)}/{nameof(SignInPage)}");
             }
             else
             {
                 await NavigationService.NavigateAsync(
-                    $"/{nameof(NavigationPage)}" +
-                    $"/{nameof(MainTabbedPage)}" +
-                    $"?{KnownNavigationParameters.SelectedTab}" +
-                    $"={nameof(MainMapPage)}");
+                    $"{nameof(NavigationPage)}" +
+                    $"/{nameof(MainTabbedPage)}");
             }
         }
 
@@ -41,6 +41,7 @@ namespace GpsNotebook
 
             containerRegistry.RegisterInstance(UserDialogs.Instance);
             containerRegistry.RegisterInstance(CrossSettings.Current);
+            containerRegistry.RegisterInstance(PopupNavigation.Instance);
 
             containerRegistry.RegisterForNavigation<NavigationPage>();
             containerRegistry.RegisterForNavigation<MainTabbedPage>();
@@ -50,6 +51,8 @@ namespace GpsNotebook
             containerRegistry.RegisterForNavigation<AllPinsPage, AllPinsPageViewModel>();
             containerRegistry.RegisterForNavigation<PinInfoPage, PinInfoPageViewModel>();
             containerRegistry.RegisterForNavigation<AddPinPage, AddPinPageViewModel>();
+
+            containerRegistry.RegisterPopupNavigationService();
         }
     }
 }

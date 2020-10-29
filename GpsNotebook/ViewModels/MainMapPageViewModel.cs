@@ -5,6 +5,7 @@ using GpsNotebook.Services;
 using GpsNotebook.Services.LocationService;
 using GpsNotebook.Views;
 using Prism.Navigation;
+using Rg.Plugins.Popup.Services;
 using System;
 using System.Collections.ObjectModel;
 using System.Threading.Tasks;
@@ -102,14 +103,16 @@ namespace GpsNotebook.ViewModels
 
         private async void PinClick(Pin pin)
         {
+            var pinModel = await RepositoryService.GetAsync<PinModel>(p => p.Label == pin.Label);
+            
             var parameters = new NavigationParameters
             {
-                { nameof(pin.Label), pin.Label },
-                { nameof(pin.Address), pin.Address },
-                { nameof(pin.Position), pin.Position }
+                { nameof(pinModel), pinModel }
             };
 
             //await NavigationService.NavigateAsync(nameof(PinInfoPage), parameters);
+            await NavigationService.NavigateAsync(nameof(PinInfoPage), parameters);
+            //await PopupNavigation.Instance.PushAsync(new PinInfoPage());
         }
 
         private async void CurrentLocationClick()

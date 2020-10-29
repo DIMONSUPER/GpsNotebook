@@ -1,8 +1,8 @@
-﻿using Xamarin.Forms;
+﻿using Rg.Plugins.Popup.Pages;
 
 namespace GpsNotebook.Views
 {
-    public partial class PinInfoPage : ContentPage
+    public partial class PinInfoPage : PopupPage
     {
         public PinInfoPage()
         {

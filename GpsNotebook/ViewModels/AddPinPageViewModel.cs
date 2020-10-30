@@ -1,9 +1,8 @@
 ﻿using Acr.UserDialogs;
-using GpsNotebook.Helpers;
 using GpsNotebook.Models;
 using GpsNotebook.Resources;
-using GpsNotebook.Services;
-using GpsNotebook.Services.LocationService;
+using GpsNotebook.Services.Location;
+using GpsNotebook.Services.Pin;
 using Prism.Navigation;
 using System.Collections.ObjectModel;
 using System.Windows.Input;
@@ -14,57 +13,26 @@ namespace GpsNotebook.ViewModels
 {
     public class AddPinPageViewModel : ViewModelBase
     {
-        public ICommand MapClickedCommand => new Command<Position>(MapClick);
-        public ICommand SaveClickedCommand => new Command(SaveClick);
-
-        private IRepositoryService RepositoryService { get; }
+        private IPinService PinService { get; }
         private IUserDialogs UserDialogs { get; }
         private ILocationService LocationService { get; }
 
-        private int pinId;
-
         public AddPinPageViewModel(
             INavigationService navigationService,
-            IRepositoryService repositoryService,
+            IPinService pinService,
             IUserDialogs userDialogs,
             ILocationService locationService)
             : base(navigationService)
         {
-            RepositoryService = repositoryService;
+            PinService = pinService;
             UserDialogs = userDialogs;
             LocationService = locationService;
-            RepositoryService.InitTable<PinModel>();
         }
 
-        public override void OnNavigatedTo(INavigationParameters parameters)
-        {
-            if (Pins == null)
-            {
-                Pins = new ObservableCollection<PinModel>();
-            }
-            if (parameters.TryGetValue(nameof(PinModel), out PinModel pinModel))
-            {
-                if (double.TryParse(pinModel.Latitude, out double latitude)
-                    && double.TryParse(pinModel.Longitude, out double longitude))
-                {
-                    Latitude = latitude;
-                    Longitude = longitude;
-                }
+        #region -- Public properties --
 
-                pinId = pinModel.Id;
-                Label = pinModel.Label;
-                Description = pinModel.Description;
-                IsFavourite = pinModel.IsFavourite;
-
-                Pins.Add(pinModel);
-
-                MapCameraPosition = new CameraPosition(new Position(Latitude, Longitude), 10d);
-            }
-            else
-            {
-                MapCameraPosition = LocationService.GetCameraLocation();
-            }
-        }
+        public ICommand MapClickedCommand => new Command<Position>(MapClick);
+        public ICommand SaveClickedCommand => new Command(SaveClick);
 
         private string label;
         public string Label
@@ -80,7 +48,7 @@ namespace GpsNotebook.ViewModels
             set { SetProperty(ref description, value); }
         }
 
-        private bool isFavourite;
+        private bool isFavourite = true;
         public bool IsFavourite
         {
             get { return isFavourite; }
@@ -115,6 +83,45 @@ namespace GpsNotebook.ViewModels
             set { SetProperty(ref pins, value); }
         }
 
+        #endregion
+
+        #region -- Overrides --
+
+        public override void OnNavigatedTo(INavigationParameters parameters)
+        {
+            if (Pins == null)
+            {
+                Pins = new ObservableCollection<PinModel>();
+            }
+            if (parameters.TryGetValue(nameof(PinModel), out PinModel pinModel))
+            {
+                if (double.TryParse(pinModel.Latitude, out double latitude)
+                    && double.TryParse(pinModel.Longitude, out double longitude))
+                {
+                    Latitude = latitude;
+                    Longitude = longitude;
+                }
+
+                pinId = pinModel.Id;
+                Label = pinModel.Label;
+                Description = pinModel.Description;
+                IsFavourite = pinModel.IsFavourite;
+
+                Pins.Add(pinModel);
+
+                MapCameraPosition = new CameraPosition(new Position(Latitude, Longitude), 10d);
+            }
+            else
+            {
+                MapCameraPosition = LocationService.GetCameraLocation();
+            }
+        }
+
+        #endregion
+
+        #region -- Private helpers --
+        private int pinId;
+
         private void MapClick(Position point)
         {
             if (string.IsNullOrEmpty(Label))
@@ -124,15 +131,14 @@ namespace GpsNotebook.ViewModels
             Latitude = point.Latitude;
             Longitude = point.Longitude;
             Pins.Clear();
+
             var newPin = new PinModel
             {
                 Label = Label,
-                Description = Description,
-                IsFavourite = IsFavourite,
                 Latitude = Latitude.ToString(),
                 Longitude = Longitude.ToString(),
-                UserId = Settings.RememberedUserId
             };
+
             Pins.Add(newPin);
         }
 
@@ -141,7 +147,7 @@ namespace GpsNotebook.ViewModels
             if (!string.IsNullOrEmpty(Label)
                 && Latitude != 0 && Longitude != 0)
             {
-                int result = await RepositoryService.InsertAsync(new PinModel
+                PinModel pinModel = new PinModel
                 {
                     Id = pinId,
                     Label = Label,
@@ -149,8 +155,9 @@ namespace GpsNotebook.ViewModels
                     IsFavourite = IsFavourite,
                     Latitude = Latitude.ToString(),
                     Longitude = Longitude.ToString(),
-                    UserId = Settings.RememberedUserId
-                });
+                };
+
+                int result = await PinService.AddPinAsync(pinModel);
 
                 if (result != -1)
                 {
@@ -162,5 +169,7 @@ namespace GpsNotebook.ViewModels
                 UserDialogs.Alert(AppResources.FieldsFilledError);
             }
         }
+
+        #endregion
     }
 }

@@ -1,23 +1,24 @@
 ﻿using Acr.UserDialogs;
 using GpsNotebook.Helpers;
 using GpsNotebook.Services;
-using GpsNotebook.Services.LocationService;
+using GpsNotebook.Services.Authorization;
+using GpsNotebook.Services.Location;
+using GpsNotebook.Services.Pin;
+using GpsNotebook.Services.Repository;
 using GpsNotebook.ViewModels;
 using GpsNotebook.Views;
 using Plugin.Settings;
 using Prism;
 using Prism.Ioc;
-using Prism.Navigation;
 using Prism.Plugin.Popups;
 using Prism.Unity;
-using Rg.Plugins.Popup.Services;
 using Xamarin.Forms;
 
 namespace GpsNotebook
 {
     public partial class App : PrismApplication
     {
-        public App():this(null) { }
+        public App() : this(null) { }
         public App(IPlatformInitializer initializer = null) : base(initializer) { }
         protected async override void OnInitialized()
         {
@@ -36,12 +37,15 @@ namespace GpsNotebook
 
         protected override void RegisterTypes(IContainerRegistry containerRegistry)
         {
-            containerRegistry.RegisterInstance<IRepositoryService>(Container.Resolve<RepositoryService>());
-            containerRegistry.RegisterInstance<ILocationService>(Container.Resolve<LocationService>());
-
             containerRegistry.RegisterInstance(UserDialogs.Instance);
             containerRegistry.RegisterInstance(CrossSettings.Current);
-            containerRegistry.RegisterInstance(PopupNavigation.Instance);
+
+            containerRegistry.RegisterPopupNavigationService();
+
+            containerRegistry.RegisterInstance<IRepositoryService>(Container.Resolve<RepositoryService>());
+            containerRegistry.RegisterInstance<IPinService>(Container.Resolve<PinService>());
+            containerRegistry.RegisterInstance<IAuthorizationService>(Container.Resolve<AuthorizationService>());
+            containerRegistry.RegisterInstance<ILocationService>(Container.Resolve<LocationService>());
 
             containerRegistry.RegisterForNavigation<NavigationPage>();
             containerRegistry.RegisterForNavigation<MainTabbedPage>();
@@ -51,8 +55,6 @@ namespace GpsNotebook
             containerRegistry.RegisterForNavigation<AllPinsPage, AllPinsPageViewModel>();
             containerRegistry.RegisterForNavigation<PinInfoPage, PinInfoPageViewModel>();
             containerRegistry.RegisterForNavigation<AddPinPage, AddPinPageViewModel>();
-
-            containerRegistry.RegisterPopupNavigationService();
         }
     }
 }

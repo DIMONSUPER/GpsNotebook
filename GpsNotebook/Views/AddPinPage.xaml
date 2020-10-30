@@ -4,7 +4,6 @@
              xmlns:prism="http://prismlibrary.com"
              xmlns:map="clr-namespace:Xamarin.Forms.GoogleMaps;assembly=Xamarin.Forms.GoogleMaps"
              xmlns:bindings="clr-namespace:GpsNotebook.Behaviors"
-             prism:ViewModelLocator.AutowireViewModel="True"
              x:Class="GpsNotebook.Views.AddPinPage"
              xmlns:resource="clr-namespace:GpsNotebook.Resources" xmlns:controls="clr-namespace:GpsNotebook.Controls"
              Title="{x:Static resource:AppResources.AddPin}">

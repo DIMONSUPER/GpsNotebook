@@ -4,17 +4,24 @@ using System.Linq.Expressions;
 using System.Threading.Tasks;
 using GpsNotebook.Models;
 
-namespace GpsNotebook.Services
+namespace GpsNotebook.Services.Repository
 {
     public interface IRepositoryService
     {
-        Task<List<T>> GetAllAsync<T>() where T:IEntityBase, new();
+        Task<List<T>> GetAllAsync<T>() where T : IEntityBase, new();
+
         Task<List<T>> GetAllAsync<T>(Expression<Func<T, bool>> predicate = null) where T : IEntityBase, new();
+
         Task<T> GetByIdAsync<T>(int id) where T : IEntityBase, new();
+
         Task<T> GetAsync<T>(Expression<Func<T, bool>> predicate) where T : IEntityBase, new();
+
         Task<int> InsertAsync<T>(T entity) where T : IEntityBase, new();
+
         Task<int> UpdateAsync<T>(T entity) where T : IEntityBase, new();
+
         Task<int> DeleteAsync<T>(T entity) where T : IEntityBase, new();
+
         void InitTable<T>() where T : IEntityBase, new();
     }
 }

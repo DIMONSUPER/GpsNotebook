@@ -4,26 +4,33 @@ using GpsNotebook.Helpers;
 using Xamarin.Essentials;
 using Xamarin.Forms.GoogleMaps;
 
-namespace GpsNotebook.Services.LocationService
+namespace GpsNotebook.Services.Location
 {
     public class LocationService : ILocationService
     {
-        public LocationService()
-        {
-        }
+        #region -- ILocationService implementation --
 
-        public async Task<Location> GetCurrenLocationAsync()
+        public async Task<Xamarin.Essentials.Location> GetCurrenLocationAsync()
         {
-            var result = await Geolocation.GetLastKnownLocationAsync();
+            Xamarin.Essentials.Location result = null;
 
-            if (result == null)
+            try
             {
-                result = await Geolocation.GetLocationAsync(new GeolocationRequest
+                await Geolocation.GetLastKnownLocationAsync();
+
+                if (result == null)
                 {
-                    DesiredAccuracy = GeolocationAccuracy.Medium,
-                    Timeout = TimeSpan.FromSeconds(30)
-                });
+                    result = await Geolocation.GetLocationAsync(new GeolocationRequest
+                    {
+                        DesiredAccuracy = GeolocationAccuracy.Medium,
+                        Timeout = TimeSpan.FromSeconds(30)
+                    });
+                }
             }
+            catch
+            {
+            }
+
             return result;
         }
 
@@ -49,5 +56,7 @@ namespace GpsNotebook.Services.LocationService
             }
 
         }
+
+        #endregion
     }
 }

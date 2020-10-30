@@ -1,13 +1,11 @@
-﻿using System;
-using Xamarin.Forms;
+﻿using Xamarin.Forms;
 
 namespace GpsNotebook.Controls
 {
-    public class CustomEntry : Entry
+    public class CustomEntry:Entry
     {
         public CustomEntry()
         {
-
         }
     }
 }

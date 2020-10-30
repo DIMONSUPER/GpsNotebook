@@ -1,16 +1,14 @@
-﻿using Acr.UserDialogs;
-using GpsNotebook.Helpers;
-using GpsNotebook.Models;
-using GpsNotebook.Services;
-using GpsNotebook.Services.LocationService;
+﻿using GpsNotebook.Models;
+using GpsNotebook.Services.Authorization;
+using GpsNotebook.Services.Location;
+using GpsNotebook.Services.Pin;
 using GpsNotebook.Views;
 using Prism.Navigation;
-using Rg.Plugins.Popup.Services;
-using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Input;
-using Xamarin.Essentials;
 using Xamarin.Forms;
 using Xamarin.Forms.GoogleMaps;
 
@@ -18,44 +16,32 @@ namespace GpsNotebook.ViewModels
 {
     public class MainMapPageViewModel : ViewModelBase
     {
-        public ICommand PinClickedCommand => new Command<Pin>(PinClick);
-        public ICommand LogOutClickedCommand => new Command(LogOutClick);
-        public ICommand CurrentLocationClickedCommand => new Command(CurrentLocationClick);
-        public ICommand SearchOnTextChangedCommand => new Command(SearchOnTextChanged);
-        public ICommand CameraChangedCommand => new Command(CameraChanged);
-
-        private IRepositoryService RepositoryService { get; }
-        private ILocationService LocationService { get; }
+        private readonly IAuthorizationService AuthorizationService;
+        private readonly IPinService PinService;
+        private readonly ILocationService LocationService;
 
         public MainMapPageViewModel(
             INavigationService navigationService,
-            IRepositoryService repositoryService,
+            IAuthorizationService authorizationService,
+            IPinService pinService,
             ILocationService locationService)
             : base(navigationService)
         {
-            RepositoryService = repositoryService;
+            AuthorizationService = authorizationService;
+            PinService = pinService;
             LocationService = locationService;
-            RepositoryService.InitTable<PinModel>();
             PlacesList = new ObservableCollection<PinModel>();
 
             MapCameraPosition = LocationService.GetCameraLocation();
         }
 
-        public override async void OnNavigatedTo(INavigationParameters parameters)
-        {
-            await LoadPins();
-            MapCameraPosition = LocationService.GetCameraLocation();
+        #region -- Public properties --
 
-            if (parameters.TryGetValue("SelectedPin", out PinModel selectedPin))
-            {
-                PlacesList.Add(selectedPin);
-            }
-        }
-
-        public override void OnNavigatedFrom(INavigationParameters parameters)
-        {
-            parameters.Add(nameof(MapCameraPosition), MapCameraPosition);
-        }
+        public ICommand PinClickedCommand => new Command<Pin>(OnPinClick);
+        public ICommand LogOutClickedCommand => new Command(OnLogOutClick);
+        public ICommand CurrentLocationClickedCommand => new Command(OnCurrentLocationClick);
+        public ICommand TextChangedCommand => new Command(OnTextChanged);
+        public ICommand CameraChangedCommand => new Command(OnCameraChanged);
 
         private string _searchBarText;
         public string SearchBarText
@@ -78,36 +64,52 @@ namespace GpsNotebook.ViewModels
             set { SetProperty(ref mapCameraPosition, value); }
         }
 
-        private void CameraChanged()
+        #endregion
+
+        #region -- Overrides --
+
+        public override async void OnNavigatedTo(INavigationParameters parameters)
+        {
+            MapCameraPosition = LocationService.GetCameraLocation();
+            await LoadPins();
+
+            if (parameters.TryGetValue("SelectedPin", out PinModel selectedPin))
+            {
+                PlacesList.Add(selectedPin);
+                LocationService.SetCameraLocation(new CameraPosition(selectedPin.Position, 10d));
+                MapCameraPosition = LocationService.GetCameraLocation();
+            }
+        }
+
+        #endregion
+
+        #region -- Private helpers --
+
+        private void OnCameraChanged()
         {
             LocationService.SetCameraLocation(MapCameraPosition);
         }
 
-        private async void SearchOnTextChanged()
+        private async void OnTextChanged()
         {
-            PlacesList.Clear();
-            if (string.IsNullOrEmpty(SearchBarText))
-            {
-                await LoadPins();
-            }
-            else
-            {
-                var pins = await RepositoryService.GetAllAsync<PinModel>(p =>
-                (p.UserId == Settings.RememberedUserId && p.IsFavourite == true)
-                && (p.Label.Contains(SearchBarText) || p.Description.Contains(SearchBarText)
-                || p.Latitude.Contains(SearchBarText) || p.Longitude.Contains(SearchBarText)));
-
-                PlacesList = new ObservableCollection<PinModel>(pins);
-            }
+            await LoadPins();
         }
 
-        private async void PinClick(Pin pin)
+        private async Task LoadPins()
         {
-            var pinModel = await RepositoryService.GetAsync<PinModel>(p => p.Label == pin.Label);
-            
+            List<PinModel> pins = await PinService.GetPinsAsync(SearchBarText);
+            var favourites = pins.Where(p => p.IsFavourite == true);
+
+            PlacesList = new ObservableCollection<PinModel>(favourites);
+        }
+
+        private async void OnPinClick(Pin pin)
+        {
+            var selectedPin = await PinService.GetByPosition(pin.Position);
+
             var parameters = new NavigationParameters
             {
-                { nameof(pinModel), pinModel }
+                { nameof(selectedPin), selectedPin }
             };
 
             //await NavigationService.NavigateAsync(nameof(PinInfoPage), parameters);
@@ -115,31 +117,20 @@ namespace GpsNotebook.ViewModels
             //await PopupNavigation.Instance.PushAsync(new PinInfoPage());
         }
 
-        private async void CurrentLocationClick()
+        private async void OnCurrentLocationClick()
         {
-            try
-            {
-                var location = await LocationService.GetCurrenLocationAsync();
-                MapCameraPosition = new CameraPosition(new Position(location.Latitude, location.Longitude), 10d);
-            }
-            catch
-            {
-            }
+            var location = await LocationService.GetCurrenLocationAsync();
+            LocationService.SetCameraLocation(new CameraPosition(new Position(location.Latitude, location.Longitude), MapCameraPosition.Zoom));
+            MapCameraPosition = LocationService.GetCameraLocation();
         }
 
-        private async void LogOutClick()
+        private async void OnLogOutClick()
         {
-            Settings.RememberedEmail = string.Empty;
+            AuthorizationService.LogOut();
             await NavigationService.NavigateAsync($"/{nameof(NavigationPage)}/{nameof(SignInPage)}");
         }
 
-        private async Task LoadPins()
-        {
-            var pins = await RepositoryService.GetAllAsync<PinModel>(p =>
-            (p.UserId == Settings.RememberedUserId && p.IsFavourite == true));
-
-            PlacesList = new ObservableCollection<PinModel>(pins);
-        }
+        #endregion
     }
 }
 

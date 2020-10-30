@@ -1,90 +1,84 @@
 ﻿using System.Windows.Input;
 using Acr.UserDialogs;
-using GpsNotebook.Helpers;
-using GpsNotebook.Models;
 using GpsNotebook.Resources;
-using GpsNotebook.Services;
+using GpsNotebook.Services.Authorization;
 using GpsNotebook.Views;
 using Prism.Navigation;
-using Prism.Services;
 using Xamarin.Forms;
 
 namespace GpsNotebook.ViewModels
 {
     public class SignInPageViewModel : ViewModelBase
     {
-        public ICommand SignInClickCommand => new Command(SignInClick);
-        public ICommand SignUpClickCommand => new Command(SignUpClick);
+        private readonly IAuthorizationService AuthorizationService;
+        private readonly IUserDialogs UserDialogs;
 
-        private IRepositoryService RepositoryService { get; }
-        private IUserDialogs UserDialogs { get; }
         public SignInPageViewModel(
             INavigationService navigationService,
-            IRepositoryService repositoryService,
+            IAuthorizationService authorizationService,
             IUserDialogs userDialogs)
-            :base(navigationService)
+            : base(navigationService)
         {
-            RepositoryService = repositoryService;
+            AuthorizationService = authorizationService;
             UserDialogs = userDialogs;
-            RepositoryService.InitTable<UserModel>();
         }
+
+        #region -- Overrides --
+
         public override void OnNavigatedTo(INavigationParameters parameters)
         {
             if (parameters.TryGetValue(nameof(UserEmail), out string userEmail))
             {
                 UserEmail = userEmail;
             }
-            else
-            { UserEmail = string.Empty; }
         }
 
-        private string userEmail;
+        #endregion
+
+        #region -- Public properties --
+
+        public ICommand SignInClickCommand => new Command(OnSignInClick);
+        public ICommand SignUpClickCommand => new Command(OnSignUpClick);
+
+        private string _userEmail;
         public string UserEmail
         {
-            get { return userEmail; }
-            set
-            {
-                SetProperty(ref userEmail, value);
-            }
+            get { return _userEmail; }
+            set { SetProperty(ref _userEmail, value); }
         }
 
         private string userPassword;
         public string UserPassword
         {
             get { return userPassword; }
-            set
-            {
-                SetProperty(ref userPassword, value);
-            }
+            set { SetProperty(ref userPassword, value); }
         }
 
-        private async void SignInClick()
-        {
-            var myquery = await RepositoryService.GetAsync<UserModel>(u => u.Email.Equals(UserEmail) && u.Password.Equals(UserPassword));
+        #endregion
 
-            if (myquery != null)
+        #region -- Private helpers --
+
+        private async void OnSignInClick()
+        {
+            var user = await AuthorizationService.SignInAsync(UserEmail.ToUpper(), UserPassword);
+
+            if (user != null)
             {
-                Settings.RememberedEmail = UserEmail;
-                Settings.RememberedUserId = myquery.Id;
-                await NavigationService.NavigateAsync(
-                    $"/{nameof(NavigationPage)}" +
-                    $"/{nameof(MainTabbedPage)}" +
-                    $"?{KnownNavigationParameters.SelectedTab}" +
-                    $"={nameof(MainMapPage)}");
+                await NavigationService.NavigateAsync($"/{nameof(NavigationPage)}/{nameof(MainTabbedPage)}");
             }
             else
             {
                 await UserDialogs.AlertAsync(AppResources.InvalidLogin, AppResources.InvalidLogin, AppResources.OK);
-                Settings.RememberedEmail = string.Empty;
-                Settings.RememberedUserId = 0;
                 UserPassword = string.Empty;
             }
         }
 
-        private async void SignUpClick()
+        private async void OnSignUpClick()
         {
             await NavigationService.NavigateAsync(nameof(SignUpPage));
         }
+
+        #endregion
     }
 }
 

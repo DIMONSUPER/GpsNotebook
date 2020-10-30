@@ -26,7 +26,7 @@
 
                     <SearchBar.Behaviors>
                         <prism:EventToCommandBehavior EventName="TextChanged"
-                                                      Command="{Binding SearchOnTextChangedCommand}"/>
+                                                      Command="{Binding TextChangedCommand}"/>
 
                     </SearchBar.Behaviors>
                 </SearchBar>

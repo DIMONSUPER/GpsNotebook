@@ -1,9 +1,8 @@
 ﻿using Acr.UserDialogs;
 using GpsNotebook.Models;
 using GpsNotebook.Resources;
-using GpsNotebook.Services;
+using GpsNotebook.Services.Authorization;
 using Prism.Navigation;
-using Prism.Services;
 using System.Text.RegularExpressions;
 using System.Windows.Input;
 using Xamarin.Forms;
@@ -12,19 +11,22 @@ namespace GpsNotebook.ViewModels
 {
     public class SignUpPageViewModel : ViewModelBase
     {
-        public ICommand SignUpClickCommand => new Command(SignUpClick);
+        private readonly IAuthorizationService AuthorizationService;
+        private readonly IUserDialogs UserDialogs;
 
-        private IRepositoryService RepositoryService { get; }
-        private IUserDialogs UserDialogs { get; }
         public SignUpPageViewModel(
             INavigationService navigationService,
-            IRepositoryService repositoryService,
+            IAuthorizationService authorizationService,
             IUserDialogs userDialogs)
             : base(navigationService)
         {
-            RepositoryService = repositoryService;
+            AuthorizationService = authorizationService;
             UserDialogs = userDialogs;
         }
+
+        #region -- Public properties --
+
+        public ICommand SignUpClickCommand => new Command(SignUpClick);
 
         private string userEmail;
         public string UserEmail
@@ -54,60 +56,49 @@ namespace GpsNotebook.ViewModels
             set { SetProperty(ref confirmUserPassword, value); }
         }
 
+        #endregion
+
+        #region -- Private helpers --
+
         private async void SignUpClick()
         {
             string message = string.Empty;
 
             if (ValidateEmail(UserEmail, ref message))
             {
-                if (string.IsNullOrEmpty(userName)
-                    || userName.Length < 6)
+                if (string.IsNullOrEmpty(userName))
                 {
-                    await UserDialogs.AlertAsync(
-                        AppResources.NameInvalid,
-                        AppResources.NameInvalid,
-                        AppResources.OK);
-                }
-                else if (UserPassword != ConfirmUserPassword)
-                {
-                    await UserDialogs.AlertAsync(
-                        AppResources.PasswordsMatch,
-                        AppResources.PasswordsMatch,
-                        AppResources.OK);
+                    await UserDialogs.AlertAsync(AppResources.NameInvalid, AppResources.NameInvalid, AppResources.OK);
                 }
                 else if (ValidatePassword(UserPassword, ref message))
                 {
-                    int result = await RepositoryService.InsertAsync(new UserModel { Email = UserEmail, Password = UserPassword });
-                    if (result != -1)
+                    if (UserPassword != ConfirmUserPassword)
                     {
-                        await UserDialogs.AlertAsync(
-                            AppResources.RegistrationSuccessfull,
-                            AppResources.RegistrationSuccessfullTitle,
-                            AppResources.OK);
-
-                        var parameters = new NavigationParameters
-                        {
-                            { nameof(UserEmail), UserEmail }
-                        };
-
-                        await NavigationService.GoBackAsync(parameters);
+                        await UserDialogs.AlertAsync(AppResources.PasswordsMatch, AppResources.PasswordsMatch, AppResources.OK);
                     }
                     else
                     {
-                        await UserDialogs.AlertAsync(
-                            AppResources.RegistrationFail,
-                            AppResources.RegistrationFailTitle,
-                            AppResources.OK);
+                        bool result = await AuthorizationService.SignUpAsync(new UserModel { Email = UserEmail.ToUpper(), Name = UserName, Password = UserPassword });
+
+                        if (result)
+                        {
+                            await UserDialogs.AlertAsync(AppResources.RegistrationSuccessfull, AppResources.RegistrationSuccessfullTitle, AppResources.OK);
+
+                            var parameters = new NavigationParameters { { nameof(UserEmail), UserEmail } };
+
+                            await NavigationService.GoBackAsync(parameters);
+                        }
+                        else
+                        {
+                            await UserDialogs.AlertAsync(AppResources.RegistrationFail, AppResources.RegistrationFailTitle, AppResources.OK);
+                        }
                     }
                 }
             }
 
             if (!string.IsNullOrEmpty(message))
             {
-                await UserDialogs.AlertAsync(
-                    message,
-                    AppResources.RegistrationFailTitle,
-                    AppResources.OK);
+                await UserDialogs.AlertAsync(message, AppResources.RegistrationFailTitle, AppResources.OK);
             }
         }
 
@@ -174,5 +165,7 @@ namespace GpsNotebook.ViewModels
 
             return result;
         }
+
+        #endregion
     }
 }

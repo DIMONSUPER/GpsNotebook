@@ -1,10 +1,11 @@
 ﻿using Acr.UserDialogs;
-using GpsNotebook.Helpers;
 using GpsNotebook.Models;
 using GpsNotebook.Resources;
-using GpsNotebook.Services;
+using GpsNotebook.Services.Authorization;
+using GpsNotebook.Services.Pin;
 using GpsNotebook.Views;
 using Prism.Navigation;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Threading.Tasks;
 using System.Windows.Input;
@@ -15,43 +16,37 @@ namespace GpsNotebook.ViewModels
 {
     public class AllPinsPageViewModel : ViewModelBase
     {
-        public ICommand LogOutClickedCommand => new Command(LogOutClick);
-        public ICommand AddButtonClickedCommand => new Command(AddButtonClick);
-        public ICommand EditClickedCommand => new Command<PinModel>(EditClick);
-        public ICommand DeleteClickedCommand => new Command<PinModel>(DeleteClick);
-        public ICommand PinClickedCommand => new Command<PinModel>(PinClick);
-        public ICommand SearchOnTextChangedCommand => new Command(SearchOnTextChanged);
-
-        private IRepositoryService RepositoryService { get; }
-        private IUserDialogs UserDialogs { get; }
+        private readonly IAuthorizationService AuthorizationService;
+        private readonly IPinService PinService;
+        private readonly IUserDialogs UserDialogs;
 
         public AllPinsPageViewModel(
             INavigationService navigationService,
-            IRepositoryService repositoryService,
+            IAuthorizationService authorizationService,
+            IPinService pinService,
             IUserDialogs userDialogs)
             : base(navigationService)
         {
-            RepositoryService = repositoryService;
+            AuthorizationService = authorizationService;
+            PinService = pinService;
             UserDialogs = userDialogs;
+            PlacesList = new ObservableCollection<PinModel>();
         }
 
-        public override async void OnNavigatedTo(INavigationParameters parameters)
-        {
-            await RefreshList();
-        }
+        #region -- Public properties --
+
+        public ICommand LogOutClickedCommand => new Command(OnLogOutClick);
+        public ICommand AddButtonClickedCommand => new Command(OnAddButtonClick);
+        public ICommand EditClickedCommand => new Command<PinModel>(OnEditClick);
+        public ICommand DeleteClickedCommand => new Command<PinModel>(OnDeleteClick);
+        public ICommand PinClickedCommand => new Command<PinModel>(OnPinClick);
+        public ICommand TextChangedCommand => new Command(OnTextChanged);
 
         private string _searchBarText;
         public string SearchBarText
         {
             get { return _searchBarText; }
             set { SetProperty(ref _searchBarText, value); }
-        }
-
-        private CameraPosition mapCameraPosition;
-        public CameraPosition MapCameraPosition
-        {
-            get { return mapCameraPosition; }
-            set { SetProperty(ref mapCameraPosition, value); }
         }
 
         private PinModel selectedPin;
@@ -72,38 +67,37 @@ namespace GpsNotebook.ViewModels
             set { SetProperty(ref placesList, value); }
         }
 
-        private async void DeleteClick(PinModel pinModel)
+        #endregion
+
+        #region -- Overrides --
+
+        public async override void OnNavigatedTo(INavigationParameters parameters)
+        {
+            await LoadList();
+        }
+
+        #endregion
+
+        #region -- Private helpers --
+
+        private async void OnDeleteClick(PinModel pinModel)
         {
             var result = await UserDialogs.ConfirmAsync(new ConfirmConfig()
-                .SetTitle(AppResources.ConfirmationTitle)
-                .SetOkText(AppResources.Yes)
-                .SetCancelText(AppResources.No));
+                .SetTitle(AppResources.ConfirmationTitle).SetOkText(AppResources.Yes).SetCancelText(AppResources.No));
 
             if (result)
             {
-                await RepositoryService.DeleteAsync(pinModel);
-                await RefreshList();
+                await PinService.DeletePinAsync(pinModel);
+                await LoadList();
             }
         }
 
-        private async void SearchOnTextChanged()
+        private async void OnTextChanged()
         {
-            PlacesList.Clear();
-            if (string.IsNullOrEmpty(SearchBarText))
-            {
-                await RefreshList();
-            }
-            else
-            {
-                var pins = await RepositoryService.GetAllAsync<PinModel>(p => (p.UserId == Settings.RememberedUserId)
-                && (p.Label.Contains(SearchBarText) || p.Description.Contains(SearchBarText)
-                || p.Latitude.Contains(SearchBarText) || p.Longitude.Contains(SearchBarText)));
-
-                PlacesList = new ObservableCollection<PinModel>(pins);
-            }
+            await LoadList();
         }
 
-        private async void EditClick(PinModel pinModel)
+        private async void OnEditClick(PinModel pinModel)
         {
             var parametеrs = new NavigationParameters
             {
@@ -113,43 +107,41 @@ namespace GpsNotebook.ViewModels
             await NavigationService.NavigateAsync(nameof(AddPinPage), parametеrs);
         }
 
-        private async void AddButtonClick()
+        private async void OnAddButtonClick()
         {
             await NavigationService.NavigateAsync(nameof(AddPinPage));
         }
 
-        private async Task RefreshList()
+        private async Task LoadList()
         {
-            var pins = await RepositoryService.GetAllAsync<PinModel>(p => p.UserId == Settings.RememberedUserId);
-
+            List<PinModel> pins = await PinService.GetPinsAsync(SearchBarText);
             PlacesList = new ObservableCollection<PinModel>(pins);
         }
 
-        private async void LogOutClick()
+        private async void OnLogOutClick()
         {
-            Settings.RememberedEmail = string.Empty;
+            AuthorizationService.LogOut();
             await NavigationService.NavigateAsync($"/{nameof(NavigationPage)}/{nameof(SignInPage)}");
         }
 
-        private async void PinClick(PinModel model)
+        private async void OnPinClick(PinModel model)
         {
             if (double.TryParse(model.Latitude, out double latitude)
                 && double.TryParse(model.Longitude, out double longitude))
             {
-                MapCameraPosition = new CameraPosition(new Position(latitude, longitude), 10d);
-                var parameters = new NavigationParameters
-            {
+                var MapCameraPosition = new CameraPosition(new Position(latitude, longitude), 10d);
+
+                var parameters = new NavigationParameters{
                 { nameof(MapCameraPosition), MapCameraPosition },
                 { nameof(SelectedPin), SelectedPin }
             };
 
-                await NavigationService.NavigateAsync(
-                    $"/{nameof(NavigationPage)}" +
-                    $"/{nameof(MainTabbedPage)}" +
-                    $"?{nameof(KnownNavigationParameters.SelectedTab)}" +
-                    $"={nameof(MainMapPage)}", parameters);
+                await NavigationService.NavigateAsync($"/{nameof(NavigationPage)}/{nameof(MainTabbedPage)}" +
+                    $"?{nameof(KnownNavigationParameters.SelectedTab)}={nameof(MainMapPage)}", parameters);
             }
         }
+
+        #endregion
     }
 }
 

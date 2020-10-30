@@ -81,7 +81,10 @@
     <Folder Include="Helpers\" />
     <Folder Include="Resources\" />
     <Folder Include="Controls\" />
-    <Folder Include="Services\LocationService\" />
+    <Folder Include="Services\Location\" />
+    <Folder Include="Services\Authorization\" />
+    <Folder Include="Services\Repository\" />
+    <Folder Include="Services\Pin\" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="Mono.Android">

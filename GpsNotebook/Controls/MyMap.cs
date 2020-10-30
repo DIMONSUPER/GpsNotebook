@@ -9,6 +9,8 @@ namespace GpsNotebook.Controls
         public MyMap()
         {
             MoveCamera(CameraUpdateFactory.NewCameraPosition(MapCameraPosition));
+            UiSettings.ZoomControlsEnabled = false;
+            UiSettings.MyLocationButtonEnabled = true;
             CameraIdled += OnCameraIdled;
         }
 

@@ -6,7 +6,7 @@ using System.IO;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
 
-namespace GpsNotebook.Services
+namespace GpsNotebook.Services.Repository
 {
     public class RepositoryService : IRepositoryService
     {
@@ -17,6 +17,8 @@ namespace GpsNotebook.Services
             string path = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
             database = new SQLiteAsyncConnection(Path.Combine(path, "MyDataBase.db"));
         }
+
+        #region -- IRepositoryService implementation --
 
         public async Task<int> DeleteAsync<T>(T entity) where T : IEntityBase, new()
         {
@@ -85,5 +87,7 @@ namespace GpsNotebook.Services
         {
             return await database.UpdateAsync(entity);
         }
+
+        #endregion
     }
 }

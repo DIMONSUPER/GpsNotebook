@@ -8,6 +8,13 @@ namespace GpsNotebook.ViewModels
     {
         protected INavigationService NavigationService { get; private set; }
 
+        public ViewModelBase(INavigationService navigationService)
+        {
+            NavigationService = navigationService;
+        }
+
+        #region -- Public properties --
+
         private string _title;
         public string Title
         {
@@ -15,15 +22,18 @@ namespace GpsNotebook.ViewModels
             set { SetProperty(ref _title, value); }
         }
 
-        public ViewModelBase(INavigationService navigationService)
-        {
-            NavigationService = navigationService;
-        }
+        #endregion
+
+        #region -- IInitialize implementation --
 
         public virtual void Initialize(INavigationParameters parameters)
         {
 
         }
+
+        #endregion
+
+        #region -- INavigationAware implementation --
 
         public virtual void OnNavigatedFrom(INavigationParameters parameters)
         {
@@ -35,9 +45,15 @@ namespace GpsNotebook.ViewModels
 
         }
 
+        #endregion
+
+        #region -- IDestructible implementation --
+
         public virtual void Destroy()
         {
 
         }
+
+        #endregion
     }
 }

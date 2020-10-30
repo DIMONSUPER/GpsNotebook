@@ -199,7 +199,7 @@
     <value>Email is invalid!</value>
   </data>
   <data name="NameInvalid" xml:space="preserve">
-    <value>Name must contain at least 6 characters</value>
+    <value>Name cant be empty</value>
   </data>
   <data name="MainPage" xml:space="preserve">
     <value>Main page</value>

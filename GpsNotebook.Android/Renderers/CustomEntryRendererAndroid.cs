@@ -1,4 +1,5 @@
-﻿using Android.Graphics.Drawables;
+﻿using Android.Content;
+using Android.Graphics.Drawables;
 using GpsNotebook.Controls;
 using GpsNotebook.Droid.Renderers;
 using Xamarin.Forms;
@@ -9,6 +10,10 @@ namespace GpsNotebook.Droid.Renderers
 {
     public class CustomEntryRendererAndroid : EntryRenderer
     {
+        public CustomEntryRendererAndroid(Context context) : base(context)
+        {
+        }
+
         protected override void OnElementChanged(ElementChangedEventArgs<Entry> e)
         {
             base.OnElementChanged(e);

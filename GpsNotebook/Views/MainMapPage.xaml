@@ -27,13 +27,14 @@
 
                     <SearchBar.Behaviors>
                         <prism:EventToCommandBehavior EventName="TextChanged"
-                                                      Command="{Binding SearchOnTextChangedCommand}"/>
+                                                      Command="{Binding TextChangedCommand}"/>
                     </SearchBar.Behaviors>
 
                 </SearchBar>
                 <controls:MyMap ItemsSource="{Binding PlacesList, Mode=OneWay}"
                                 MapCameraPosition="{Binding MapCameraPosition, Mode=TwoWay}"
-                                MapType="Street">
+                                MapType="Street"
+                                MyLocationEnabled="True">
 
                     <controls:MyMap.Behaviors>
                         <prism:EventToCommandBehavior EventName="PinClicked"
@@ -53,13 +54,6 @@
                     </controls:MyMap.ItemTemplate>
                 </controls:MyMap>
             </StackLayout>
-            <ImageButton Source="my_location.png"
-                         HeightRequest="60"
-                         BackgroundColor="Transparent"
-                         HorizontalOptions="End"
-                         VerticalOptions="End"
-                         Margin="0,0,5,110"
-                         Command="{Binding CurrentLocationClickedCommand}"/>
         </Grid>
     </ContentPage.Content>
 </ContentPage>

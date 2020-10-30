@@ -3,7 +3,6 @@ using System.Threading.Tasks;
 using GpsNotebook.Helpers;
 using GpsNotebook.Models;
 using GpsNotebook.Services.Repository;
-using Xamarin.Forms.GoogleMaps;
 
 namespace GpsNotebook.Services.Pin
 {
@@ -30,9 +29,10 @@ namespace GpsNotebook.Services.Pin
             return await RepositoryService.DeleteAsync(pin);
         }
 
-        public Task<PinModel> GetByPosition(Position position)
+        public async Task<PinModel> GetByLabelAsync(string label)
         {
-            return RepositoryService.GetAsync<PinModel>(p => p.UserId == Settings.RememberedUserId);
+            return await RepositoryService.GetAsync<PinModel>(p => p.UserId == Settings.RememberedUserId
+            && p.Label == label);
         }
 
         public async Task<List<PinModel>> GetPinsAsync(string keyWord = null)
@@ -51,7 +51,11 @@ namespace GpsNotebook.Services.Pin
             }
 
             return result;
+        }
 
+        public async Task<int> UpdatePinAsync(PinModel pin)
+        {
+            return await RepositoryService.UpdateAsync<PinModel>(pin);
         }
 
         #endregion

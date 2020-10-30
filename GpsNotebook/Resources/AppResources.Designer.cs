@@ -320,5 +320,13 @@ namespace GpsNotebook.Resources {
                 return ResourceManager.GetString("Search", resourceCulture);
             }
         }
+
+        internal static string LabelError
+        {
+            get
+            {
+                return ResourceManager.GetString("LabelError", resourceCulture);
+            }
+        }
     }
 }

@@ -16,9 +16,9 @@ namespace GpsNotebook.ViewModels
 {
     public class AllPinsPageViewModel : ViewModelBase
     {
-        private readonly IAuthorizationService AuthorizationService;
-        private readonly IPinService PinService;
-        private readonly IUserDialogs UserDialogs;
+        private readonly IAuthorizationService _authorizationService;
+        private readonly IPinService _pinService;
+        private readonly IUserDialogs _userDialogs;
 
         public AllPinsPageViewModel(
             INavigationService navigationService,
@@ -27,9 +27,9 @@ namespace GpsNotebook.ViewModels
             IUserDialogs userDialogs)
             : base(navigationService)
         {
-            AuthorizationService = authorizationService;
-            PinService = pinService;
-            UserDialogs = userDialogs;
+            _authorizationService = authorizationService;
+            _pinService = pinService;
+            _userDialogs = userDialogs;
             PlacesList = new ObservableCollection<PinModel>();
         }
 
@@ -49,22 +49,22 @@ namespace GpsNotebook.ViewModels
             set { SetProperty(ref _searchBarText, value); }
         }
 
-        private PinModel selectedPin;
+        private PinModel _selectedPin;
         public PinModel SelectedPin
         {
-            get { return selectedPin; }
+            get { return _selectedPin; }
             set
             {
-                SetProperty(ref selectedPin, value);
-                PinClickedCommand.Execute(selectedPin);
+                SetProperty(ref _selectedPin, value);
+                PinClickedCommand.Execute(_selectedPin);
             }
         }
 
-        private ObservableCollection<PinModel> placesList;
+        private ObservableCollection<PinModel> _placesList;
         public ObservableCollection<PinModel> PlacesList
         {
-            get { return placesList; }
-            set { SetProperty(ref placesList, value); }
+            get { return _placesList; }
+            set { SetProperty(ref _placesList, value); }
         }
 
         #endregion
@@ -82,12 +82,12 @@ namespace GpsNotebook.ViewModels
 
         private async void OnDeleteClick(PinModel pinModel)
         {
-            var result = await UserDialogs.ConfirmAsync(new ConfirmConfig()
+            var result = await _userDialogs.ConfirmAsync(new ConfirmConfig()
                 .SetTitle(AppResources.ConfirmationTitle).SetOkText(AppResources.Yes).SetCancelText(AppResources.No));
 
             if (result)
             {
-                await PinService.DeletePinAsync(pinModel);
+                await _pinService.DeletePinAsync(pinModel);
                 await LoadList();
             }
         }
@@ -114,18 +114,19 @@ namespace GpsNotebook.ViewModels
 
         private async Task LoadList()
         {
-            List<PinModel> pins = await PinService.GetPinsAsync(SearchBarText);
+            List<PinModel> pins = await _pinService.GetPinsAsync(SearchBarText);
             PlacesList = new ObservableCollection<PinModel>(pins);
         }
 
         private async void OnLogOutClick()
         {
-            AuthorizationService.LogOut();
+            _authorizationService.LogOut();
             await NavigationService.NavigateAsync($"/{nameof(NavigationPage)}/{nameof(SignInPage)}");
         }
 
         private async void OnPinClick(PinModel model)
         {
+            double l = double.Parse(model.Latitude);
             if (double.TryParse(model.Latitude, out double latitude)
                 && double.TryParse(model.Longitude, out double longitude))
             {

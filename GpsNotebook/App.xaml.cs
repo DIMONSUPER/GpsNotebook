@@ -1,8 +1,8 @@
 ﻿using Acr.UserDialogs;
 using GpsNotebook.Helpers;
-using GpsNotebook.Services;
 using GpsNotebook.Services.Authorization;
 using GpsNotebook.Services.Location;
+using GpsNotebook.Services.Permissions;
 using GpsNotebook.Services.Pin;
 using GpsNotebook.Services.Repository;
 using GpsNotebook.ViewModels;
@@ -10,7 +10,6 @@ using GpsNotebook.Views;
 using Plugin.Settings;
 using Prism;
 using Prism.Ioc;
-using Prism.Plugin.Popups;
 using Prism.Unity;
 using Xamarin.Forms;
 
@@ -29,9 +28,7 @@ namespace GpsNotebook
             }
             else
             {
-                await NavigationService.NavigateAsync(
-                    $"{nameof(NavigationPage)}" +
-                    $"/{nameof(MainTabbedPage)}");
+                await NavigationService.NavigateAsync($"{nameof(NavigationPage)}/{nameof(MainTabbedPage)}");
             }
         }
 
@@ -40,11 +37,10 @@ namespace GpsNotebook
             containerRegistry.RegisterInstance(UserDialogs.Instance);
             containerRegistry.RegisterInstance(CrossSettings.Current);
 
-            containerRegistry.RegisterPopupNavigationService();
-
             containerRegistry.RegisterInstance<IRepositoryService>(Container.Resolve<RepositoryService>());
             containerRegistry.RegisterInstance<IPinService>(Container.Resolve<PinService>());
             containerRegistry.RegisterInstance<IAuthorizationService>(Container.Resolve<AuthorizationService>());
+            containerRegistry.RegisterInstance<IPermissionsService>(Container.Resolve<PermissionsService>());
             containerRegistry.RegisterInstance<ILocationService>(Container.Resolve<LocationService>());
 
             containerRegistry.RegisterForNavigation<NavigationPage>();
@@ -52,8 +48,7 @@ namespace GpsNotebook
             containerRegistry.RegisterForNavigation<SignInPage, SignInPageViewModel>();
             containerRegistry.RegisterForNavigation<SignUpPage, SignUpPageViewModel>();
             containerRegistry.RegisterForNavigation<MainMapPage, MainMapPageViewModel>();
-            containerRegistry.RegisterForNavigation<AllPinsPage, AllPinsPageViewModel>();
-            containerRegistry.RegisterForNavigation<PinInfoPage, PinInfoPageViewModel>();
+            containerRegistry.RegisterForNavigation<AllPinsPage, AllPinsPageViewModel>();   
             containerRegistry.RegisterForNavigation<AddPinPage, AddPinPageViewModel>();
         }
     }

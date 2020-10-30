@@ -1,8 +1,10 @@
 ﻿using GpsNotebook.Models;
 using GpsNotebook.Services.Authorization;
 using GpsNotebook.Services.Location;
+using GpsNotebook.Services.Permissions;
 using GpsNotebook.Services.Pin;
 using GpsNotebook.Views;
+using Plugin.Permissions.Abstractions;
 using Prism.Navigation;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -16,32 +18,36 @@ namespace GpsNotebook.ViewModels
 {
     public class MainMapPageViewModel : ViewModelBase
     {
-        private readonly IAuthorizationService AuthorizationService;
-        private readonly IPinService PinService;
-        private readonly ILocationService LocationService;
+        private readonly IAuthorizationService _authorizationService;
+        private readonly IPinService _pinService;
+        private readonly ILocationService _locationService;
+        private readonly IPermissionsService _permissionsService;
 
         public MainMapPageViewModel(
             INavigationService navigationService,
             IAuthorizationService authorizationService,
             IPinService pinService,
-            ILocationService locationService)
+            ILocationService locationService,
+            IPermissionsService permissionsService)
             : base(navigationService)
         {
-            AuthorizationService = authorizationService;
-            PinService = pinService;
-            LocationService = locationService;
-            PlacesList = new ObservableCollection<PinModel>();
+            _authorizationService = authorizationService;
+            _pinService = pinService;
+            _locationService = locationService;
+            _permissionsService = permissionsService;
 
-            MapCameraPosition = LocationService.GetCameraLocation();
+            InitializeCurrentLocation();
+
+            MapCameraPosition = _locationService.GetCameraLocation();
         }
 
         #region -- Public properties --
 
         public ICommand PinClickedCommand => new Command<Pin>(OnPinClick);
         public ICommand LogOutClickedCommand => new Command(OnLogOutClick);
-        public ICommand CurrentLocationClickedCommand => new Command(OnCurrentLocationClick);
         public ICommand TextChangedCommand => new Command(OnTextChanged);
         public ICommand CameraChangedCommand => new Command(OnCameraChanged);
+        public ICommand CloseButtonClickedCommand => new Command(OnCloseButtonClicked);
 
         private string _searchBarText;
         public string SearchBarText
@@ -50,18 +56,39 @@ namespace GpsNotebook.ViewModels
             set { SetProperty(ref _searchBarText, value); }
         }
 
-        private ObservableCollection<PinModel> placesList;
-        public ObservableCollection<PinModel> PlacesList
+        private bool _isInfoVisible;
+        public bool IsInfoVisible
         {
-            get { return placesList; }
-            set { SetProperty(ref placesList, value); }
+            get { return _isInfoVisible; }
+            set { SetProperty(ref _isInfoVisible, value); }
         }
 
-        private CameraPosition mapCameraPosition;
+        private bool _isMyLocationEnabled;
+        public bool IsMyLocationEnabled
+        {
+            get { return _isMyLocationEnabled; }
+            set { SetProperty(ref _isMyLocationEnabled, value); }
+        }
+
+        private PinModel _selectedPin;
+        public PinModel SelectedPin
+        {
+            get { return _selectedPin; }
+            set { SetProperty(ref _selectedPin, value); }
+        }
+
+        private ObservableCollection<PinModel> _placesList;
+        public ObservableCollection<PinModel> PlacesList
+        {
+            get { return _placesList; }
+            set { SetProperty(ref _placesList, value); }
+        }
+
+        private CameraPosition _mapCameraPosition;
         public CameraPosition MapCameraPosition
         {
-            get { return mapCameraPosition; }
-            set { SetProperty(ref mapCameraPosition, value); }
+            get { return _mapCameraPosition; }
+            set { SetProperty(ref _mapCameraPosition, value); }
         }
 
         #endregion
@@ -70,14 +97,22 @@ namespace GpsNotebook.ViewModels
 
         public override async void OnNavigatedTo(INavigationParameters parameters)
         {
-            MapCameraPosition = LocationService.GetCameraLocation();
+            MapCameraPosition = _locationService.GetCameraLocation();
             await LoadPins();
 
-            if (parameters.TryGetValue("SelectedPin", out PinModel selectedPin))
+            if (parameters.TryGetValue(nameof(SelectedPin), out PinModel selectedPin))
             {
+                SelectedPin = selectedPin;
                 PlacesList.Add(selectedPin);
-                LocationService.SetCameraLocation(new CameraPosition(selectedPin.Position, 10d));
-                MapCameraPosition = LocationService.GetCameraLocation();
+
+                _locationService.SetCameraLocation(new CameraPosition(selectedPin.Position, 10d));
+                MapCameraPosition = _locationService.GetCameraLocation();
+
+                IsInfoVisible = true;
+            }
+            else
+            {
+                IsInfoVisible = false;
             }
         }
 
@@ -87,7 +122,7 @@ namespace GpsNotebook.ViewModels
 
         private void OnCameraChanged()
         {
-            LocationService.SetCameraLocation(MapCameraPosition);
+            _locationService.SetCameraLocation(MapCameraPosition);
         }
 
         private async void OnTextChanged()
@@ -97,7 +132,7 @@ namespace GpsNotebook.ViewModels
 
         private async Task LoadPins()
         {
-            List<PinModel> pins = await PinService.GetPinsAsync(SearchBarText);
+            List<PinModel> pins = await _pinService.GetPinsAsync(SearchBarText);
             var favourites = pins.Where(p => p.IsFavourite == true);
 
             PlacesList = new ObservableCollection<PinModel>(favourites);
@@ -105,29 +140,28 @@ namespace GpsNotebook.ViewModels
 
         private async void OnPinClick(Pin pin)
         {
-            var selectedPin = await PinService.GetByPosition(pin.Position);
+            PinModel selectedPin = await _pinService.GetByLabelAsync(pin.Label);
 
-            var parameters = new NavigationParameters
-            {
-                { nameof(selectedPin), selectedPin }
-            };
+            SelectedPin = selectedPin;
 
-            //await NavigationService.NavigateAsync(nameof(PinInfoPage), parameters);
-            await NavigationService.NavigateAsync(nameof(PinInfoPage), parameters);
-            //await PopupNavigation.Instance.PushAsync(new PinInfoPage());
-        }
-
-        private async void OnCurrentLocationClick()
-        {
-            var location = await LocationService.GetCurrenLocationAsync();
-            LocationService.SetCameraLocation(new CameraPosition(new Position(location.Latitude, location.Longitude), MapCameraPosition.Zoom));
-            MapCameraPosition = LocationService.GetCameraLocation();
+            IsInfoVisible = true;
         }
 
         private async void OnLogOutClick()
         {
-            AuthorizationService.LogOut();
+            _authorizationService.LogOut();
             await NavigationService.NavigateAsync($"/{nameof(NavigationPage)}/{nameof(SignInPage)}");
+        }
+
+        private void OnCloseButtonClicked()
+        {
+            IsInfoVisible = false;
+        }
+
+        private async void InitializeCurrentLocation()
+        {
+            bool result = await _permissionsService.GetPermissionAsync(Permission.Location);
+            IsMyLocationEnabled = result;
         }
 
         #endregion

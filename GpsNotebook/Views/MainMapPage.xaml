@@ -34,7 +34,7 @@
                 <controls:MyMap ItemsSource="{Binding PlacesList, Mode=OneWay}"
                                 MapCameraPosition="{Binding MapCameraPosition, Mode=TwoWay}"
                                 MapType="Street"
-                                MyLocationEnabled="True">
+                                MyLocationEnabled="{Binding IsMyLocationEnabled}">
 
                     <controls:MyMap.Behaviors>
                         <prism:EventToCommandBehavior EventName="PinClicked"
@@ -54,6 +54,23 @@
                     </controls:MyMap.ItemTemplate>
                 </controls:MyMap>
             </StackLayout>
+
+            <Frame VerticalOptions="End"
+                   IsVisible="{Binding IsInfoVisible}"
+                   HorizontalOptions="Center"
+                   CornerRadius="10">
+            <StackLayout>
+                <Label Text="{Binding Path = SelectedPin.Label}" HorizontalOptions="Center" FontAttributes="Bold" FontSize="16"/>
+                <Label Text="{Binding SelectedPin.Latitude, StringFormat='Latitude: {0}'}" HorizontalOptions="Center"/> 
+                <Label Text="{Binding SelectedPin.Longitude,StringFormat='Longitude: {0}'}" HorizontalOptions="Center"/>
+                <Label Text="{Binding SelectedPin.Description, StringFormat='Description: {0}'}" HorizontalOptions="Center"/>
+                <Button Text="Close"
+                        TextColor="Black"
+                        Command="{Binding CloseButtonClickedCommand}"
+                        BackgroundColor="LightBlue"/>
+            </StackLayout>
+         </Frame>
+
         </Grid>
     </ContentPage.Content>
 </ContentPage>

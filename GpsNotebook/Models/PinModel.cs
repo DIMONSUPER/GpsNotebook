@@ -22,8 +22,11 @@ namespace GpsNotebook.Models
             get { return new Position(double.Parse(Latitude),double.Parse(Longitude)); }
             set
             {
-                Latitude = value.Latitude.ToString();
-                Longitude = value.Longitude.ToString();
+                if (value != null)
+                {
+                    Latitude = value.Latitude.ToString();
+                    Longitude = value.Longitude.ToString();
+                }
             }
         }
     }

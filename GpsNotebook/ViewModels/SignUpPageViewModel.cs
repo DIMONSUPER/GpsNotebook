@@ -11,8 +11,8 @@ namespace GpsNotebook.ViewModels
 {
     public class SignUpPageViewModel : ViewModelBase
     {
-        private readonly IAuthorizationService AuthorizationService;
-        private readonly IUserDialogs UserDialogs;
+        private readonly IAuthorizationService _authorizationService;
+        private readonly IUserDialogs _userDialogs;
 
         public SignUpPageViewModel(
             INavigationService navigationService,
@@ -20,40 +20,40 @@ namespace GpsNotebook.ViewModels
             IUserDialogs userDialogs)
             : base(navigationService)
         {
-            AuthorizationService = authorizationService;
-            UserDialogs = userDialogs;
+            _authorizationService = authorizationService;
+            _userDialogs = userDialogs;
         }
 
         #region -- Public properties --
 
         public ICommand SignUpClickCommand => new Command(SignUpClick);
 
-        private string userEmail;
+        private string _userEmail;
         public string UserEmail
         {
-            get { return userEmail; }
-            set { SetProperty(ref userEmail, value); }
+            get { return _userEmail; }
+            set { SetProperty(ref _userEmail, value); }
         }
 
-        private string userName;
+        private string _userName;
         public string UserName
         {
-            get { return userName; }
-            set { SetProperty(ref userName, value); }
+            get { return _userName; }
+            set { SetProperty(ref _userName, value); }
         }
 
-        private string userPassword;
+        private string _userPassword;
         public string UserPassword
         {
-            get { return userPassword; }
-            set { SetProperty(ref userPassword, value); }
+            get { return _userPassword; }
+            set { SetProperty(ref _userPassword, value); }
         }
 
-        private string confirmUserPassword;
+        private string _confirmUserPassword;
         public string ConfirmUserPassword
         {
-            get { return confirmUserPassword; }
-            set { SetProperty(ref confirmUserPassword, value); }
+            get { return _confirmUserPassword; }
+            set { SetProperty(ref _confirmUserPassword, value); }
         }
 
         #endregion
@@ -66,23 +66,23 @@ namespace GpsNotebook.ViewModels
 
             if (ValidateEmail(UserEmail, ref message))
             {
-                if (string.IsNullOrEmpty(userName))
+                if (string.IsNullOrEmpty(_userName))
                 {
-                    await UserDialogs.AlertAsync(AppResources.NameInvalid, AppResources.NameInvalid, AppResources.OK);
+                    await _userDialogs.AlertAsync(AppResources.NameInvalid, AppResources.NameInvalid, AppResources.OK);
                 }
                 else if (ValidatePassword(UserPassword, ref message))
                 {
                     if (UserPassword != ConfirmUserPassword)
                     {
-                        await UserDialogs.AlertAsync(AppResources.PasswordsMatch, AppResources.PasswordsMatch, AppResources.OK);
+                        await _userDialogs.AlertAsync(AppResources.PasswordsMatch, AppResources.PasswordsMatch, AppResources.OK);
                     }
                     else
                     {
-                        bool result = await AuthorizationService.SignUpAsync(new UserModel { Email = UserEmail.ToUpper(), Name = UserName, Password = UserPassword });
+                        bool result = await _authorizationService.SignUpAsync(new UserModel { Email = UserEmail.ToUpper(), Name = UserName, Password = UserPassword });
 
                         if (result)
                         {
-                            await UserDialogs.AlertAsync(AppResources.RegistrationSuccessfull, AppResources.RegistrationSuccessfullTitle, AppResources.OK);
+                            await _userDialogs.AlertAsync(AppResources.RegistrationSuccessfull, AppResources.RegistrationSuccessfullTitle, AppResources.OK);
 
                             var parameters = new NavigationParameters { { nameof(UserEmail), UserEmail } };
 
@@ -90,7 +90,7 @@ namespace GpsNotebook.ViewModels
                         }
                         else
                         {
-                            await UserDialogs.AlertAsync(AppResources.RegistrationFail, AppResources.RegistrationFailTitle, AppResources.OK);
+                            await _userDialogs.AlertAsync(AppResources.RegistrationFail, AppResources.RegistrationFailTitle, AppResources.OK);
                         }
                     }
                 }
@@ -98,7 +98,7 @@ namespace GpsNotebook.ViewModels
 
             if (!string.IsNullOrEmpty(message))
             {
-                await UserDialogs.AlertAsync(message, AppResources.RegistrationFailTitle, AppResources.OK);
+                await _userDialogs.AlertAsync(message, AppResources.RegistrationFailTitle, AppResources.OK);
             }
         }
 

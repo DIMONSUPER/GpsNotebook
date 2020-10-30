@@ -10,8 +10,8 @@ namespace GpsNotebook.ViewModels
 {
     public class SignInPageViewModel : ViewModelBase
     {
-        private readonly IAuthorizationService AuthorizationService;
-        private readonly IUserDialogs UserDialogs;
+        private readonly IAuthorizationService _authorizationService;
+        private readonly IUserDialogs _userDialogs;
 
         public SignInPageViewModel(
             INavigationService navigationService,
@@ -19,8 +19,8 @@ namespace GpsNotebook.ViewModels
             IUserDialogs userDialogs)
             : base(navigationService)
         {
-            AuthorizationService = authorizationService;
-            UserDialogs = userDialogs;
+            _authorizationService = authorizationService;
+            _userDialogs = userDialogs;
         }
 
         #region -- Overrides --
@@ -47,11 +47,11 @@ namespace GpsNotebook.ViewModels
             set { SetProperty(ref _userEmail, value); }
         }
 
-        private string userPassword;
+        private string _userPassword;
         public string UserPassword
         {
-            get { return userPassword; }
-            set { SetProperty(ref userPassword, value); }
+            get { return _userPassword; }
+            set { SetProperty(ref _userPassword, value); }
         }
 
         #endregion
@@ -60,7 +60,7 @@ namespace GpsNotebook.ViewModels
 
         private async void OnSignInClick()
         {
-            var user = await AuthorizationService.SignInAsync(UserEmail.ToUpper(), UserPassword);
+            var user = await _authorizationService.SignInAsync(UserEmail.ToUpper(), UserPassword);
 
             if (user != null)
             {
@@ -68,7 +68,7 @@ namespace GpsNotebook.ViewModels
             }
             else
             {
-                await UserDialogs.AlertAsync(AppResources.InvalidLogin, AppResources.InvalidLogin, AppResources.OK);
+                await _userDialogs.AlertAsync(AppResources.InvalidLogin, AppResources.InvalidLogin, AppResources.OK);
                 UserPassword = string.Empty;
             }
         }

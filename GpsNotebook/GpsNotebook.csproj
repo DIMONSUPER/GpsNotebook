@@ -74,7 +74,7 @@
     <PackageReference Include="Xam.Plugins.Settings" Version="3.1.1" />
     <PackageReference Include="Xamarin.Forms.GoogleMaps" Version="3.2.1" />
     <PackageReference Include="Xamarin.Forms.GoogleMaps.Clustering" Version="1.1.0" />
-    <PackageReference Include="Prism.Plugin.Popups" Version="7.2.0.759" />
+    <PackageReference Include="Plugin.Permissions" Version="6.0.1" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Services\" />
@@ -85,6 +85,7 @@
     <Folder Include="Services\Authorization\" />
     <Folder Include="Services\Repository\" />
     <Folder Include="Services\Pin\" />
+    <Folder Include="Services\Permissions\" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="Mono.Android">
@@ -103,9 +104,6 @@
     <EmbeddedResource Update="Recources\AppResources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>AppResources.Designer.cs</LastGenOutput>
-    </EmbeddedResource>
-    <EmbeddedResource Update="Views\PinInfoPage.xaml">
-      <Generator>MSBuild:UpdateDesignTimeXaml</Generator>
     </EmbeddedResource>
   </ItemGroup>
 </Project>

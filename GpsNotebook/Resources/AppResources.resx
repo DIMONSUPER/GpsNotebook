@@ -243,4 +243,7 @@
   <data name="Search" xml:space="preserve">
     <value>Search</value>
   </data>
+  <data name="LabelError" xml:space="preserve">
+    <value>Pin with such label already exists, do you want to update it?</value>
+  </data>
 </root>

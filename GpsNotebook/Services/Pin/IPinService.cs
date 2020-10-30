@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 using GpsNotebook.Models;
-using Xamarin.Forms.GoogleMaps;
 
 namespace GpsNotebook.Services.Pin
 {
@@ -9,10 +8,12 @@ namespace GpsNotebook.Services.Pin
     {
         Task<int> AddPinAsync(PinModel pin);
 
+        Task<int> UpdatePinAsync(PinModel pin);
+
         Task<int> DeletePinAsync(PinModel pin);
 
         Task<List<PinModel>> GetPinsAsync(string keyWord = default);
 
-        Task<PinModel> GetByPosition(Position position);
+        Task<PinModel> GetByLabelAsync(string label);
     }
 }

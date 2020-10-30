@@ -86,8 +86,8 @@
 
             <ImageButton Source="ic_add.png" 
                          BackgroundColor="RoyalBlue"
-                         CornerRadius="100"
-                         BorderWidth="10"
+                         CornerRadius="50"
+                         BorderWidth="5"
                          Scale="0.8"
                          Padding="30"
                          BorderColor="Black"

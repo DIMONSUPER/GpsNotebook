@@ -9,6 +9,6 @@ namespace GpsNotebook.Services.Location
 
         void SetCameraLocation(CameraPosition cameraPosition);
 
-        Task<Xamarin.Essentials.Location> GetCurrenLocationAsync();
+        Task<bool> CanGetCurrenLocationAsync();
     }
 }

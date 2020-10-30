@@ -10,17 +10,17 @@ namespace GpsNotebook.Services.Location
     {
         #region -- ILocationService implementation --
 
-        public async Task<Xamarin.Essentials.Location> GetCurrenLocationAsync()
+        public async Task<bool> CanGetCurrenLocationAsync()
         {
-            Xamarin.Essentials.Location result = null;
+            Xamarin.Essentials.Location location = null;
 
             try
             {
                 await Geolocation.GetLastKnownLocationAsync();
 
-                if (result == null)
+                if (location == null)
                 {
-                    result = await Geolocation.GetLocationAsync(new GeolocationRequest
+                    location = await Geolocation.GetLocationAsync(new GeolocationRequest
                     {
                         DesiredAccuracy = GeolocationAccuracy.Medium,
                         Timeout = TimeSpan.FromSeconds(30)
@@ -31,7 +31,7 @@ namespace GpsNotebook.Services.Location
             {
             }
 
-            return result;
+            return location != null;
         }
 
         public CameraPosition GetCameraLocation()
@@ -54,7 +54,6 @@ namespace GpsNotebook.Services.Location
                 Settings.RememberedLongitude = cameraPosition.Target.Longitude.ToString();
                 Settings.RememberedZoom = cameraPosition.Zoom.ToString();
             }
-
         }
 
         #endregion
